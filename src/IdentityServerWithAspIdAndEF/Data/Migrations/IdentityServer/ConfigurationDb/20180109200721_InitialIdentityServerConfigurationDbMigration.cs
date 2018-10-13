@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IdentityServerWithAspIdAndEF.Data.Migrations.IdentityServer.ConfigurationDb
+namespace NZFurs.Auth.Data.Migrations.IdentityServer.ConfigurationDb
 {
     public partial class InitialIdentityServerConfigurationDbMigration : Migration
     {

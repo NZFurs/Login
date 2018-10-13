@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
-namespace IdentityServerWithAspIdAndEF.Data.Migrations
+namespace NZFurs.Auth.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

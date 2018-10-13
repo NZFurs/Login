@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using IdentityServerWithAspIdAndEF.Data;
-using IdentityServerWithAspIdAndEF.Models;
+using NZFurs.Auth.Data;
+using NZFurs.Auth.Models;
 using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace IdentityServerWithAspIdAndEF
+namespace NZFurs.Auth
 {
     public class Startup
     {

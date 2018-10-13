@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IdentityServerWithAspIdAndEF.Data.Migrations.IdentityServer.PersistedGrantDb
+namespace NZFurs.Auth.Data.Migrations.IdentityServer.PersistedGrantDb
 {
     public partial class InitialIdentityServerPersistedGrantDbMigration : Migration
     {

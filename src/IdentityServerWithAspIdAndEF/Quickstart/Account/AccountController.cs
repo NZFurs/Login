@@ -18,7 +18,7 @@ using IdentityModel;
 using System.Linq;
 using System;
 using System.Collections.Generic;
-using IdentityServerWithAspIdAndEF.Models;
+using NZFurs.Auth.Models;
 
 namespace IdentityServer4.Quickstart.UI
 {

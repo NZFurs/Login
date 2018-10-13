@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using IdentityServerWithAspIdAndEF.Models;
+using NZFurs.Auth.Models;
 
-namespace IdentityServerWithAspIdAndEF.Data
+namespace NZFurs.Auth.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
