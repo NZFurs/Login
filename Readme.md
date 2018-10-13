@@ -1,3 +1,1 @@
-# Quickstart #6: IdentityServer and ASP.NET Identity
-
-This quickstart uses ASP.NET Identity for identity management.
+# NZFurs Login Server [![Build Status](https://dev.azure.com/nzfurs/Login/_apis/build/status/TCFox.NZFurs.Auth)](https://dev.azure.com/nzfurs/Login/_build/latest?definitionId=1)
