@@ -1,26 +1,25 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
+﻿using IdentityModel;
+using IdentityServer4.Events;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using IdentityServer4.Events;
-using IdentityServer4.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using IdentityServer4.Extensions;
-using System.Security.Principal;
-using System.Security.Claims;
-using IdentityModel;
-using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using NZFurs.Auth.Helpers;
+using NZFurs.Auth.Models;
+using NZFurs.Auth.Models.AccountViewModels;
+using NZFurs.Auth.Options;
 using System;
 using System.Collections.Generic;
-using NZFurs.Auth.Models;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading.Tasks;
 
-namespace IdentityServer4.Quickstart.UI
+namespace NZFurs.Auth.Controllers
 {
     [SecurityHeaders]
     public class AccountController : Controller
