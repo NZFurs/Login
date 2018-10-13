@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NZFurs.Auth.Data;
 using NZFurs.Auth.Models;
+using NZFurs.Auth.Services;
 using System;
 using System.Reflection;
 
@@ -34,6 +35,8 @@ namespace NZFurs.Auth
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
 
             services.AddMvc();
 
