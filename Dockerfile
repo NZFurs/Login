@@ -20,7 +20,7 @@ COPY src/ ./src/
 RUN dotnet publish -c Release -o out
 
 # "Runtime Stage" Container: "runtime"
-FROM microsoft/dotnet:2.1-runtime AS runtime
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
 
 WORKDIR /app
 
