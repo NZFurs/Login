@@ -146,13 +146,15 @@ namespace NZFurs.Auth.Services
         private async Task<string> GetAzureActiveDirectoryToken(string authority, string resource, string scope)
         {
             var authContext = new AuthenticationContext(authority);
-            ClientCredential clientCred = new ClientCredential(_keyVaultClientOptions.ClientId, _keyVaultClientOptions.ClientSecret);
-            AuthenticationResult result = await authContext.AcquireTokenAsync(resource, clientCred);
+            foreach (var clientSecret in _keyVaultClientOptions.ClientSecrets)
+            {
+                ClientCredential clientCred = new ClientCredential(_keyVaultClientOptions.ClientId, clientSecret);
+                AuthenticationResult result = await authContext.AcquireTokenAsync(resource, clientCred);
 
-            if (result == null)
-                throw new InvalidOperationException("Failed to obtain the JWT token");
+                if (result != null) return result.AccessToken;
+            }
 
-            return result.AccessToken;
+            throw new InvalidOperationException("Failed to obtain the JWT token");
         }
 
         protected virtual string GetAlgorithmForKeyBundle(KeyBundle keyBundle)
