@@ -51,9 +51,31 @@ namespace NZFurs.Auth.Services
             return new SigningCredentials(securityKey, SecurityAlgorithms.Sha256Digest);
         }
 
-        public Task<IEnumerable<SecurityKey>> GetValidationKeysAsync()
+        public async Task<IEnumerable<SecurityKey>> GetValidationKeysAsync()
         {
-            throw new NotImplementedException();
+            // TODO: This is a very expensive operation. We should cache this somehow.
+
+            List<SecurityKey> securityKeys = new List<SecurityKey>();
+            var keyItemsPage = await _keyVaultClient.GetKeyVersionsAsync(_keyVaultClientOptions.KeyVault, _keyVaultClientOptions.KeyName);
+
+            foreach (var keyItem in keyItemsPage)
+            {
+                var keyBundle = await _keyVaultClient.GetKeyAsync(keyItem.Kid);
+                securityKeys.Add(GetSecurityKeyForKeyBundle(keyBundle));
+            }
+
+            while (keyItemsPage.NextPageLink != null)
+            {
+                keyItemsPage = await _keyVaultClient.GetKeyVersionsNextAsync(keyItemsPage.NextPageLink);
+
+                foreach (var keyItem in keyItemsPage)
+                {
+                    var keyBundle = await _keyVaultClient.GetKeyAsync(keyItem.Kid);
+                    securityKeys.Add(GetSecurityKeyForKeyBundle(keyBundle));
+                }
+            }
+
+            return securityKeys;
         }
 
         /// <summary>
