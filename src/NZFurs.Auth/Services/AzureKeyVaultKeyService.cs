@@ -24,13 +24,19 @@ namespace NZFurs.Auth.Services
     {
         private readonly AzureKeyVaultKeyServiceOptions _keyVaultClientOptions;
         private readonly IKeyVaultClient _keyVaultClient;
-        private readonly ILogger<DefaultTokenCreationService> _logger;
+        private readonly ILogger<AzureKeyVaultKeyService> _logger;
         private readonly ISystemClock _systemClock;
 
-        public AzureKeyVaultKeyService(ILogger<DefaultTokenCreationService> logger, ISystemClock systemClock, IOptions<AzureKeyVaultKeyServiceOptions> keyVaultKeyServiceOptions)
+        public AzureKeyVaultKeyService(
+            ILogger<AzureKeyVaultKeyService> logger, 
+            IOptions<AzureKeyVaultKeyServiceOptions> keyVaultKeyServiceOptions, 
+            ISystemClock systemClock
+        )
         {
+            // TODO: Check to see required _keyVaultClientOptions are set
+
             _keyVaultClientOptions = keyVaultKeyServiceOptions.Value;
-            _keyVaultClient = new KeyVaultClient(GetAzureActiveDirectoryToken);
+            _keyVaultClient = new KeyVaultClient(GetAzureActiveDirectoryToken); // TODO: DI this
             _logger = logger;
             _systemClock = systemClock;
         }
@@ -175,7 +181,7 @@ namespace NZFurs.Auth.Services
                             return JsonWebKeySignatureAlgorithm.ES256;
                         case JsonWebKeyCurveName.P384:
                             return JsonWebKeySignatureAlgorithm.ES384;
-                        case JsonWebKeyCurveName.P521:
+                        case JsonWebKeyCurveName.P521: // TODO: Is 521 a typo?
                             return JsonWebKeySignatureAlgorithm.ES512;
                         case JsonWebKeyCurveName.P256K:
                             return JsonWebKeySignatureAlgorithm.ES256K;
