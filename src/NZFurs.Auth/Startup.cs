@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using IdentityServer4.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NZFurs.Auth.Data;
 using NZFurs.Auth.Models;
+using NZFurs.Auth.Options;
 using NZFurs.Auth.Services;
 using System;
 using System.Reflection;
@@ -26,6 +28,9 @@ namespace NZFurs.Auth
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions();
+            services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
+
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
@@ -37,6 +42,8 @@ namespace NZFurs.Auth
                 .AddDefaultTokenProviders();
 
             services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
+            services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
+            services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>(); 
 
             services.AddMvc();
 
