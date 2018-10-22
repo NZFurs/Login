@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -28,8 +29,8 @@ namespace NZFurs.Auth.Services
         private readonly ISystemClock _systemClock;
 
         public AzureKeyVaultKeyService(
-            ILogger<AzureKeyVaultKeyService> logger, 
-            IOptions<AzureKeyVaultKeyServiceOptions> keyVaultKeyServiceOptions, 
+            ILogger<AzureKeyVaultKeyService> logger,
+            IOptions<AzureKeyVaultKeyServiceOptions> keyVaultKeyServiceOptions,
             ISystemClock systemClock
         )
         {
@@ -205,10 +206,43 @@ namespace NZFurs.Auth.Services
                     return new RsaSecurityKey(rsa);
                 case JsonWebAlgorithmsKeyTypes.EllipticCurve:
                 case "EC-HSM":
-                    var ecdsa = keyBundle.Key.ToECDsa(false);
+                    var ecParameters = new System.Security.Cryptography.ECParameters
+                    {
+                        Curve = GetECCurveFromJsonWebKey(keyBundle.Key),
+                        Q = new ECPoint
+                        {
+                            X = keyBundle.Key.X,
+                            Y = keyBundle.Key.Y,
+                        }
+                    };
+                    var ecdsa = ECDsa.Create(ecParameters);
+
+                    //var ecdsa = keyBundle.Key.ToECDsa(false);
                     return new ECDsaSecurityKey(ecdsa);
                 default:
                     throw new Exception("Key Vault key is an unsupported kty type.");
+            }
+        }
+
+        protected virtual ECCurve GetECCurveFromJsonWebKey(Microsoft.Azure.KeyVault.WebKey.JsonWebKey jsonWebKey)
+        {
+            // https://github.com/dotnet/corefx/blob/master/src/System.Security.Cryptography.Algorithms/src/System/Security/Cryptography/ECCurve.NamedCurves.cs#L16-L18
+            const string ECDSA_P256_OID_VALUE = "1.2.840.10045.3.1.7"; // nistP256 or secP256r1
+            const string ECDSA_P384_OID_VALUE = "1.3.132.0.34"; // nistP384 or secP384r1
+            const string ECDSA_P521_OID_VALUE = "1.3.132.0.35"; // nistP521 or secP521r1
+
+            switch (jsonWebKey.CurveName)
+            {
+                case JsonWebKeyCurveName.P256:
+                    return ECCurve.CreateFromOid(new Oid(ECDSA_P256_OID_VALUE));
+                case JsonWebKeyCurveName.P384:
+                    return ECCurve.CreateFromOid(new Oid(ECDSA_P384_OID_VALUE));
+                case JsonWebKeyCurveName.P521: // TODO: Is 521 a typo?
+                    return ECCurve.CreateFromOid(new Oid(ECDSA_P521_OID_VALUE));
+                case JsonWebKeyCurveName.P256K:
+                    throw new NotImplementedException($"Not sure what OID the {JsonWebKeyCurveName.P256K} curve is supposed to be."); // TODO: Research
+                default:
+                    throw new Exception("EC Key Vault key uses an unsupported curve.");
             }
         }
     }
