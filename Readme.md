@@ -1,1 +1,1 @@
-# NZFurs Login Server [![Build Status](https://dev.azure.com/nzfurs/Login/_apis/build/status/TCFox.NZFurs.Auth)](https://dev.azure.com/nzfurs/Login/_build/latest?definitionId=1)
+# NZFurs Login Server [![Build Status](https://dev.azure.com/nzfurs/Login/_apis/build/status/develop)](https://dev.azure.com/nzfurs/Login/_build/latest?definitionId=2)
