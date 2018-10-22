@@ -51,7 +51,7 @@ namespace NZFurs.Auth.Services
 
         public async Task<SigningCredentials> GetSigningCredentialsAsync()
         {
-            var keyBundle = await _keyVaultClient.GetKeyAsync(_keyVaultClientOptions.KeyVault, _keyVaultClientOptions.KeyName);
+            var keyBundle = await _keyVaultClient.GetKeyAsync($"https://{_keyVaultClientOptions.KeyVault}.vault.azure.net", _keyVaultClientOptions.KeyName);
             var securityKey = GetSecurityKeyForKeyBundle(keyBundle);
 
             return new SigningCredentials(securityKey, SecurityAlgorithms.Sha256Digest);
@@ -62,7 +62,7 @@ namespace NZFurs.Auth.Services
             // TODO: This is a very expensive operation. We should cache this somehow.
 
             List<SecurityKey> securityKeys = new List<SecurityKey>();
-            var keyItemsPage = await _keyVaultClient.GetKeyVersionsAsync(_keyVaultClientOptions.KeyVault, _keyVaultClientOptions.KeyName);
+            var keyItemsPage = await _keyVaultClient.GetKeyVersionsAsync($"https://{_keyVaultClientOptions.KeyVault}.vault.azure.net", _keyVaultClientOptions.KeyName);
 
             foreach (var keyItem in keyItemsPage)
             {
