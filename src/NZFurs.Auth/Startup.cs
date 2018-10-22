@@ -30,6 +30,7 @@ namespace NZFurs.Auth
         {
             services.AddOptions();
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
+            services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
 
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;

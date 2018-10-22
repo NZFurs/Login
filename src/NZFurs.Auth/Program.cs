@@ -14,7 +14,7 @@ namespace NZFurs.Auth
     {
         public static void Main(string[] args)
         {
-            Console.Title = "IdentityServerWithEfAndAspNetIdentity";
+            Console.Title = "NZFurs OpenID Connect Provider";
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -37,7 +37,7 @@ namespace NZFurs.Auth
                 {
                     config.SetBasePath(Directory.GetCurrentDirectory());
                     config.AddJsonFile("Data/Config/appsettings.json", optional: false, reloadOnChange: false);
-                    config.AddJsonFile("Data/Config/appsettings.{Environment}.json");
+                    config.AddJsonFile($"Data/Config/appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json");
                     config.AddUserSecrets<Startup>();
                     config.AddEnvironmentVariables(prefix: "NZFURS__AUTH__");
                     config.AddCommandLine(args);
