@@ -1,1 +1,9 @@
-# NZFurs Login Server [![Build Status](https://dev.azure.com/nzfurs/Login/_apis/build/status/develop)](https://dev.azure.com/nzfurs/Login/_build/latest?definitionId=2)
+# NZFurs Login Server  ![GitHub](https://img.shields.io/github/license/nzfurs/logins.svg)
+
+## Code ![GitHub last commit](https://img.shields.io/github/last-commit/nzfurs/login.svg) ![GitHub issues](https://img.shields.io/github/issues/nzfurs/login.svg)
+
+## Build [![Build Status](https://dev.azure.com/nzfurs/Login/_apis/build/status/develop)](https://dev.azure.com/nzfurs/Login/_build/latest?definitionId=2)
+
+## Docker ![Docker Pulls](https://img.shields.io/docker/pulls/nzfurs/login.svg)
+
+## Server 
