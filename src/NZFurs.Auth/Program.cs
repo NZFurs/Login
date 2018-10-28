@@ -2,17 +2,19 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NZFurs.Auth.Data;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace NZFurs.Auth
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Console.Title = "NZFurs OpenID Connect Provider";
 
@@ -27,6 +29,8 @@ namespace NZFurs.Auth
                 .CreateLogger();
 
             var host = BuildWebHost(args);
+
+            await SeedData.EnsureSeedDataAsync(host.Services);
 
             host.Run();
         }
