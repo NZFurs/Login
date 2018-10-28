@@ -45,6 +45,16 @@ namespace NZFurs.Auth
                     config.AddUserSecrets<Startup>();
                     config.AddEnvironmentVariables(prefix: "NZFURS__AUTH__");
                     config.AddCommandLine(args);
+
+                    if (!hostingContext.HostingEnvironment.IsDevelopment())
+                    {
+                        var preVaultConfig = config.Build();
+                        config.AddAzureKeyVault(
+                            $"https://{preVaultConfig["Azure:KeyVault:KeyVault"]}.vault.azure.net/",
+                            preVaultConfig["Azure:ActiveDirectory:ClientId"],
+                            preVaultConfig["Azure:ActiveDirectory:ClientSecrets:0"] // TODO: How do we fall back to secondary secrets?
+                        );
+                    }
                 })
                 .ConfigureLogging(builder =>
                 {
