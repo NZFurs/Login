@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityServer4;
@@ -40,22 +41,22 @@ namespace NZFurs.Auth.Data
                 await context.SaveChangesAsync();
             }
 
-            //if (!await context.Clients.AnyAsync(cancellationToken))
-            //{
-            //    logger.LogInformation("Seeding Identity Resources...");
-            //    foreach (var identityResources in IdentityResources)
-            //    {
-            //        await context.Clients.AddAsync(client.ToEntity(), cancellationToken);
-            //    }
-            //    await context.SaveChangesAsync();
-            //}
+            if (!await context.IdentityResources.AnyAsync(cancellationToken))
+            {
+                logger.LogInformation("Seeding Identity Resources...");
+                foreach (var identityResource in IdentityResources)
+                {
+                    await context.IdentityResources.AddAsync(identityResource.ToEntity(), cancellationToken);
+                }
+                await context.SaveChangesAsync();
+            }
         }
 
         private static readonly IEnumerable<Client> Clients = new List<Client>
         {
             new Client
             {
-                ClientId = "",
+                ClientId = "5B13A353-EAFC-4A42-933D-6A330A06AA8D",
                 ClientName = "Insomnia Client (Development)",
 
                 AllowAccessTokensViaBrowser = true,
@@ -88,9 +89,67 @@ namespace NZFurs.Auth.Data
             },
         };
 
-        //private static readonly IEnumerable<IdentityResource> IdentityResources = new List<IdentityResource>
-        //{
-
-        //};
+        private static readonly IEnumerable<IdentityResource> IdentityResources = new List<IdentityResource>
+        {
+            new IdentityResource
+            {
+                Name = "Fursona",
+                DisplayName = "Fursona",
+                Description = "Allows this client access to your fursona's name and species (if available).",
+                Enabled = true,
+                Emphasize = false,
+                Required = false,
+                ShowInDiscoveryDocument = true,
+                UserClaims = 
+                {
+                    "FursonaName",
+                    "FursonaSpecies",
+                }
+            },
+            new IdentityResource
+            {
+                Name = "RealName",
+                DisplayName = "Real Name",
+                Description = "Allows this client access to your full name and given name, which you use in general day-to-day life (if available). This may be (but doesn't have to be) your legal name.",
+                Enabled = true,
+                Emphasize = true,
+                Required = false,
+                ShowInDiscoveryDocument = true,
+                UserClaims =
+                {
+                    ClaimTypes.Name,
+                    ClaimTypes.GivenName,
+                }
+            },
+            new IdentityResource
+            {
+                Name = "AgeCheck",
+                DisplayName = "Age Check",
+                Description = "Allows this client to check if you are over 18 (if provided). Your date of birth will not be provided.",
+                Enabled = true,
+                Emphasize = false,
+                Required = false,
+                ShowInDiscoveryDocument = true,
+                UserClaims =
+                {
+                    "IsOver18",
+                }
+            },
+            new IdentityResource
+            {
+                Name = "Birthday",
+                DisplayName = "Birthday",
+                Description = "Allows this client to know your date of birth (including the year) and infer your age.",
+                Enabled = true,
+                Emphasize = true,
+                Required = false,
+                ShowInDiscoveryDocument = true,
+                UserClaims =
+                {
+                    "IsOver18",
+                    ClaimTypes.DateOfBirth,
+                }
+            },
+        };
     }
 }

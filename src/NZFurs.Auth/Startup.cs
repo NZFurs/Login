@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using NZFurs.Auth.Data;
+using NZFurs.Auth.Identity;
 using NZFurs.Auth.Models;
 using NZFurs.Auth.Options;
 using NZFurs.Auth.Services;
@@ -48,16 +49,17 @@ namespace NZFurs.Auth
                 options.UseSqlite(connectionString));
             #endregion
 
-            #region Identity
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-            #endregion
-
             #region Application Services
             services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
             services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
             services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();
+            services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
+            #endregion
+
+            #region Identity
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
             #endregion
 
             #region MVC
