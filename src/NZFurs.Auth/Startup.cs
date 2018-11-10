@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,15 @@ namespace NZFurs.Auth
             // ConfigureServices becomes a mess pretty quickly, so gonna use some regions
             // Not even sorry. #fiteme
 
+            #region Cookie Policy
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => false;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            #endregion
+
             #region Options
             services.AddOptions();
             services.Configure<Argon2iPasswordHasherOptions>(Configuration.GetSection("Argon2i"));
@@ -63,7 +73,7 @@ namespace NZFurs.Auth
             #endregion
 
             #region MVC
-            services.AddMvc();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);;
             #endregion
 
             #region IIS
@@ -159,6 +169,7 @@ namespace NZFurs.Auth
             }
 
             app.UseStaticFiles();
+            app.UseCookiePolicy();
             app.UseIdentityServer();
             app.UseMvcWithDefaultRoute();
         }

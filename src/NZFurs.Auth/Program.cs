@@ -28,14 +28,14 @@ namespace NZFurs.Auth
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Literate)
                 .CreateLogger();
 
-            var host = BuildWebHost(args);
+            var host = CreateWebHostBuilder(args).Build();
 
             await SeedData.EnsureSeedDataAsync(host.Services);
 
             host.Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
@@ -61,7 +61,6 @@ namespace NZFurs.Auth
                     builder.ClearProviders();
                     builder.AddSerilog();
                 })
-                .UseStartup<Startup>()
-                .Build();
+                .UseStartup<Startup>();
     }
 }
