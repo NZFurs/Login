@@ -9,8 +9,8 @@ using NZFurs.Auth.Data;
 namespace NZFurs.Auth.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20181111021118_AspNetCoreIdentityUpdate")]
-    partial class AspNetCoreIdentityUpdate
+    [Migration("20181126071227_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

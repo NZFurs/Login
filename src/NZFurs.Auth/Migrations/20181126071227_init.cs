@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace NZFurs.Auth.Migrations
 {
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -39,7 +39,13 @@ namespace NZFurs.Auth.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    FursonaName = table.Column<string>(nullable: true),
+                    FursonaSpecies = table.Column<string>(nullable: true),
+                    IrlFullName = table.Column<string>(nullable: true),
+                    IrlShortName = table.Column<string>(nullable: true),
+                    DateOfBirth = table.Column<DateTime>(nullable: true),
+                    DateOfBirthPublicFlags = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
