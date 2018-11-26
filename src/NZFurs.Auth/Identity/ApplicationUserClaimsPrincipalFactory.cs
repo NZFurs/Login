@@ -41,7 +41,7 @@ namespace NZFurs.Auth.Identity
     {
         public static void AddClaimIfNotNullOrWhiteSpace(this ClaimsIdentity identity, string claimType, string claimValue)
         {
-            if (string.IsNullOrWhiteSpace(claimValue))
+            if (!string.IsNullOrWhiteSpace(claimValue))
             {
                 identity.AddClaim(new Claim(claimType, claimValue));
             }
