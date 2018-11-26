@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Identity\Services\" />
     <Folder Include="Data\Database\" />
     <Folder Include="Data\Config\" />
     <Folder Include="Data\Log\" />

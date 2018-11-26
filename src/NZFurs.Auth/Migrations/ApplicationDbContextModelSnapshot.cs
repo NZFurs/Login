@@ -133,7 +133,7 @@ namespace NZFurs.Auth.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
-                    b.Property<DateTime>("DateOfBirth");
+                    b.Property<DateTime?>("DateOfBirth");
 
                     b.Property<int>("DateOfBirthPublicFlags");
 
@@ -142,9 +142,9 @@ namespace NZFurs.Auth.Migrations
 
                     b.Property<bool>("EmailConfirmed");
 
-                    b.Property<string>("FursonaFullName");
+                    b.Property<string>("FursonaName");
 
-                    b.Property<string>("FursonaShortName");
+                    b.Property<string>("FursonaSpecies");
 
                     b.Property<string>("IrlFullName");
 
