@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using NZFurs.Auth.Models;
+using QRCoder;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Html;
 
 namespace NZFurs.Auth.Areas.Identity.Pages.Account.Manage
 {
@@ -21,6 +24,7 @@ namespace NZFurs.Auth.Areas.Identity.Pages.Account.Manage
         private readonly UrlEncoder _urlEncoder;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
+        private const string AuthenticatorIssuer = "NZFurs Login";
 
         public EnableAuthenticatorModel(
             UserManager<ApplicationUser> userManager,
@@ -35,6 +39,7 @@ namespace NZFurs.Auth.Areas.Identity.Pages.Account.Manage
         public string SharedKey { get; set; }
 
         public string AuthenticatorUri { get; set; }
+        public HtmlString AuthenticatorSvg { get; set; }
 
         [TempData]
         public string[] RecoveryCodes { get; set; }
@@ -126,6 +131,28 @@ namespace NZFurs.Auth.Areas.Identity.Pages.Account.Manage
 
             var email = await _userManager.GetEmailAsync(user);
             AuthenticatorUri = GenerateQrCodeUri(email, unformattedKey);
+            AuthenticatorSvg = RenderSvgQrCode(email, unformattedKey);
+        }
+        
+        private HtmlString RenderSvgQrCode(string username, string secretBase32, string issuer = AuthenticatorIssuer)
+        {
+            var generator = new PayloadGenerator.OneTimePassword
+            {
+                Secret = secretBase32,
+                Issuer = issuer,
+                Label = username,
+                Type = PayloadGenerator.OneTimePassword.OneTimePasswordAuthType.TOTP,
+                Period = 30,
+                Digits = 6,
+            };
+            string payload = generator.ToString();
+
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+            SvgQRCode qrCode = new SvgQRCode(qrCodeData);
+            string qrCodeAsSvg = qrCode.GetGraphic(3);
+
+            return new HtmlString(qrCodeAsSvg);
         }
 
         private string FormatKey(string unformattedKey)
@@ -149,7 +176,7 @@ namespace NZFurs.Auth.Areas.Identity.Pages.Account.Manage
         {
             return string.Format(
                 AuthenticatorUriFormat,
-                _urlEncoder.Encode("NZFurs.Auth"),
+                _urlEncoder.Encode(AuthenticatorIssuer),
                 _urlEncoder.Encode(email),
                 unformattedKey);
         }
