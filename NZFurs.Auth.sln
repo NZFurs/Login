@@ -14,7 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NZFurs.Auth", "src\NZFurs.Auth\NZFurs.Auth.csproj", "{1ECB5581-FFA5-4C11-A491-C85ABD962033}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NzFurs.Auth.ID4Old", "src\NzFurs.Auth.ID4Old\NzFurs.Auth.ID4Old.csproj", "{9C7885BB-4625-4394-83FA-1B145FDDCEE5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NZFurs.Auth", "src\NZFurs.Auth\NZFurs.Auth.csproj", "{A47C6AE3-CC26-423E-8684-28511FA5CE37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,16 +24,21 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C7885BB-4625-4394-83FA-1B145FDDCEE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C7885BB-4625-4394-83FA-1B145FDDCEE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C7885BB-4625-4394-83FA-1B145FDDCEE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C7885BB-4625-4394-83FA-1B145FDDCEE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A47C6AE3-CC26-423E-8684-28511FA5CE37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A47C6AE3-CC26-423E-8684-28511FA5CE37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A47C6AE3-CC26-423E-8684-28511FA5CE37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A47C6AE3-CC26-423E-8684-28511FA5CE37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033} = {2408EC7B-2E06-46A5-B6AC-D4E985E30CBB}
+		{9C7885BB-4625-4394-83FA-1B145FDDCEE5} = {2408EC7B-2E06-46A5-B6AC-D4E985E30CBB}
+		{A47C6AE3-CC26-423E-8684-28511FA5CE37} = {2408EC7B-2E06-46A5-B6AC-D4E985E30CBB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DA180829-4EA8-4C3B-BCF1-0379C9588BE6}

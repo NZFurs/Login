@@ -1,41 +1,29 @@
-﻿using IdentityServer4.Services;
-using Microsoft.AspNetCore.Mvc;
-using NZFurs.Auth.Helpers;
-using NZFurs.Auth.Models.HomeViewModels;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using NZFurs.Auth.Models;
 
 namespace NZFurs.Auth.Controllers
 {
-    [SecurityHeaders]
     public class HomeController : Controller
     {
-        private readonly IIdentityServerInteractionService _interaction;
-
-        public HomeController(IIdentityServerInteractionService interaction)
-        {
-            _interaction = interaction;
-        }
-
         public IActionResult Index()
         {
             return View();
         }
 
-        /// <summary>
-        /// Shows the error page
-        /// </summary>
-        public async Task<IActionResult> Error(string errorId)
+        public IActionResult Privacy()
         {
-            var vm = new ErrorViewModel();
+            return View();
+        }
 
-            // retrieve error details from identityserver
-            var message = await _interaction.GetErrorContextAsync(errorId);
-            if (message != null)
-            {
-                vm.Error = message;
-            }
-
-            return View("Error", vm);
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

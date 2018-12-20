@@ -6,15 +6,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using NZFurs.Auth.Models;
 
-namespace NZFurs.Auth.Identity
+namespace NZFurs.Auth.Services
 {
-    public class ApplicationUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>
+    public class ApplicationUserClaimsPrincipalFactory : UserClaimsPrincipalFactory<ApplicationUser>
     {
         public ApplicationUserClaimsPrincipalFactory(
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
             IOptions<IdentityOptions> optionsAccessor)
-            : base(userManager, roleManager, optionsAccessor)
+            : base(userManager, optionsAccessor)
         {
         }
 
