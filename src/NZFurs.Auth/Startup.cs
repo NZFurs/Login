@@ -51,7 +51,7 @@ namespace NZFurs.Auth
 
             #region DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
             #endregion
 
             #region Application Services
