@@ -1,104 +1,162 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NZFurs.Auth.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NZFurs.Auth.Models;
-using NZFurs.Auth.Options;
-using NZFurs.Auth.Services;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Logging;
+using IdentityServer4.Services;
+using System.Security.Cryptography.X509Certificates;
+using System.IO;
+using Microsoft.AspNetCore.Identity;
+using System.Globalization;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using StsServerIdentity.Services.Certificate;
+using StsServerIdentity.Models;
+using StsServerIdentity.Data;
+using StsServerIdentity.Resources;
+using StsServerIdentity.Services;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
+using StsServerIdentity.Filters;
 
-namespace NZFurs.Auth
+namespace StsServerIdentity
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment _environment;
+
+        public Startup(IHostingEnvironment env)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+
+            _environment = env;
+
+            builder.AddEnvironmentVariables();
+            Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfigurationRoot Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // ConfigureServices becomes a mess pretty quickly, so gonna use some regions
-            // Not even sorry. #fiteme
+            var stsConfig = Configuration.GetSection("StsConfig");
+            var useLocalCertStore = Convert.ToBoolean(Configuration["UseLocalCertStore"]);
+            var certificateThumbprint = Configuration["CertificateThumbprint"];
 
-            #region Options
-            services.AddOptions();
-            services.Configure<Argon2iPasswordHasherOptions>(Configuration.GetSection("Argon2i"));
-            #endregion
+            X509Certificate2 cert;
 
-            #region Cookie Policy
-            services.Configure<CookiePolicyOptions>(options =>
+            if (_environment.IsProduction())
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-            #endregion
+                if (useLocalCertStore)
+                {
+                    using (X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine))
+                    {
+                        store.Open(OpenFlags.ReadOnly);
+                        var certs = store.Certificates.Find(X509FindType.FindByThumbprint, certificateThumbprint, false);
+                        cert = certs[0];
+                        store.Close();
+                    }
+                }
+                else
+                {
+                    // Azure deployment, will be used if deployed to Azure
+                    var vaultConfigSection = Configuration.GetSection("Vault");
+                    var keyVaultService = new KeyVaultCertificateService(vaultConfigSection["Url"], vaultConfigSection["ClientId"], vaultConfigSection["ClientSecret"]);
+                    cert = keyVaultService.GetCertificateFromKeyVault(vaultConfigSection["CertificateName"]);
+                }
+            }
+            else
+            {
+                cert = new X509Certificate2(Path.Combine(_environment.ContentRootPath, "sts_dev_cert.pfx"), "1234");
+            }
 
-            #region DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            #endregion
 
-            #region Application Services
-            services.AddSingleton<IEmailSender, FakeEmailService>();
-            services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
-            services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
-            #endregion
+            services.Configure<StsConfig>(Configuration.GetSection("StsConfig"));
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
 
-            #region Identity
-            services.AddDefaultIdentity<ApplicationUser>()
-                .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-            #endregion
+            services.AddSingleton<LocService>();
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            #region MVC
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            #endregion
+            services.AddAuthentication()
+                 .AddOpenIdConnect("aad", "Login with Azure AD", options =>
+                 {
+                     options.Authority = $"https://login.microsoftonline.com/common";
+                     options.TokenValidationParameters = new TokenValidationParameters { ValidateIssuer = false };
+                     options.ClientId = "99eb0b9d-ca40-476e-b5ac-6f4c32bfb530";
+                     options.CallbackPath = "/signin-oidc";
+                 });
 
-            #region Security Headers
-            services.AddHsts(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddErrorDescriber<StsIdentityErrorDescriber>()
+                .AddDefaultTokenProviders();
+
+            services.Configure<RequestLocalizationOptions>(
+                options =>
+                {
+                    var supportedCultures = new List<CultureInfo>
+                        {
+                            new CultureInfo("en-US"),
+                            new CultureInfo("de-DE"),
+                            new CultureInfo("de-CH"),
+                            new CultureInfo("it-IT"),
+                            new CultureInfo("gsw-CH"),
+                            new CultureInfo("fr-FR"),
+                            new CultureInfo("zh-Hans")
+                        };
+
+                    options.DefaultRequestCulture = new RequestCulture(culture: "de-DE", uiCulture: "de-DE");
+                    options.SupportedCultures = supportedCultures;
+                    options.SupportedUICultures = supportedCultures;
+
+                    var providerQuery = new LocalizationQueryProvider
+                    {
+                        QureyParamterName = "ui_locales"
+                    };
+
+                    options.RequestCultureProviders.Insert(0, providerQuery);
+                });
+
+            services.AddMvc(options =>
             {
-                options.Preload = true;
-                options.IncludeSubDomains = true;
-                options.MaxAge = TimeSpan.FromDays(365);
-            });
+                options.Filters.Add(new SecurityHeadersAttribute());
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddViewLocalization()
+                .AddDataAnnotationsLocalization(options =>
+                {
+                    options.DataAnnotationLocalizerProvider = (type, factory) =>
+                    {
+                        var assemblyName = new AssemblyName(typeof(SharedResource).GetTypeInfo().Assembly.FullName);
+                        return factory.Create("SharedResource", assemblyName.Name);
+                    };
+                });
 
-            services.AddHttpsRedirection(options =>
-            {
-                options.RedirectStatusCode = StatusCodes.Status301MovedPermanently;
-                options.HttpsPort = 443;
-            });
-            #endregion
+            services.AddTransient<IProfileService, IdentityWithAdditionalClaimsProfileService>();
+
+            services.AddTransient<IEmailSender, EmailSender>();
+
+            services.AddIdentityServer()
+                .AddSigningCredential(cert)
+                .AddInMemoryIdentityResources(Config.GetIdentityResources())
+                .AddInMemoryApiResources(Config.GetApiResources())
+                .AddInMemoryClients(Config.GetClients(stsConfig))
+                .AddAspNetIdentity<ApplicationUser>()
+                .AddProfileService<IdentityWithAdditionalClaimsProfileService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            // TODO: Watch https://github.com/aspnet/BasicMiddleware/issues/323
-            app.Use(async (context, next) =>
-            {
-                context.Response.Headers.Add("X-Frame-Options", "deny");
-                context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                await next();
-            });
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -107,14 +165,48 @@ namespace NZFurs.Auth
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains());
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opts => opts.NoReferrer());
+            app.UseXXssProtection(options => options.EnabledWithBlockMode());
 
-            app.UseAuthentication();
+            app.UseCsp(opts => opts
+                .BlockAllMixedContent()
+                .StyleSources(s => s.Self())
+                .StyleSources(s => s.UnsafeInline())
+                .FontSources(s => s.Self())
+                .FrameAncestors(s => s.Self())
+                .ImageSources(imageSrc => imageSrc.Self())
+                .ImageSources(imageSrc => imageSrc.CustomSources("data:"))
+                .ScriptSources(s => s.Self())
+                .ScriptSources(s => s.UnsafeInline())
+            );
+
+            var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(locOptions.Value);
+
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                OnPrepareResponse = context =>
+                {
+                    if (context.Context.Response.Headers["feature-policy"].Count == 0)
+                    {
+                        var featurePolicy = "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'";
+
+                        context.Context.Response.Headers["feature-policy"] = featurePolicy;
+                    }
+
+                    if (context.Context.Response.Headers["X-Content-Security-Policy"].Count == 0)
+                    {
+                        var csp = "script-src 'self';style-src 'self';img-src 'self' data:;font-src 'self';form-action 'self';frame-ancestors 'self';block-all-mixed-content";
+                        // IE
+                        context.Context.Response.Headers["X-Content-Security-Policy"] = csp;
+                    }
+                }
+            });
+            app.UseIdentityServer();
 
             app.UseMvc(routes =>
             {
