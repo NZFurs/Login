@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.Identity.Core;
-using StsServerIdentity.Resources;
+using Microsoft.AspNetCore.Identity;
+using NZFurs.Auth.Resources;
 
-namespace Microsoft.AspNetCore.Identity
+namespace NZFurs.Auth
 {
     /// <summary>
     /// Service to enable localization for application facing identity errors.

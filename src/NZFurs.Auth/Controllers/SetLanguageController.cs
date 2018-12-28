@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace StsServerIdentity.Controllers
+namespace NZFurs.Auth.Controllers
 {
     public class SetLanguageController : Controller
     {

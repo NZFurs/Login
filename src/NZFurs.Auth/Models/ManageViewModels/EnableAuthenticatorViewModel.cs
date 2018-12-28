@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace StsServerIdentity.Models.ManageViewModels
+namespace NZFurs.Auth.Models.ManageViewModels
 {
     public class EnableAuthenticatorViewModel
     {

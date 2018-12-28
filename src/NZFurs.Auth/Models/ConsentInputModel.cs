@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StsServerIdentity.Models
+namespace NZFurs.Auth.Models
 {
     public class ConsentInputModel
     {

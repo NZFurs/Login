@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 
-namespace StsServerIdentity.Models.ManageViewModels
+namespace NZFurs.Auth.Models.ManageViewModels
 {
     public class ExternalLoginsViewModel
     {

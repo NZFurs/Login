@@ -1,6 +1,6 @@
-﻿@using StsServerIdentity.Resources
-@inject LocService SharedLocalizer
-@model LoginWithRecoveryCodeViewModel
+﻿@inject LocService SharedLocalizer
+@using NZFurs.Auth.Resources
+@model NZFurs.Auth.Models.AccountViewModels.LoginWithRecoveryCodeViewModel
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_RECOVERY_CODE_VERIFICATION");
 }

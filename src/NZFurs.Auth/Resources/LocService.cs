@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Localization;
-using System.Reflection;
+﻿using System.Reflection;
+using Microsoft.Extensions.Localization;
 
-namespace StsServerIdentity.Resources
+namespace NZFurs.Auth.Resources
 {
     public class LocService
     {

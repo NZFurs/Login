@@ -1,6 +1,6 @@
 ﻿using IdentityServer4.Models;
 
-namespace StsServerIdentity.Models
+namespace NZFurs.Auth.Models
 {
     public class ErrorViewModel
     {

@@ -1,6 +1,7 @@
-﻿@using StsServerIdentity.Resources
-@inject LocService SharedLocalizer
-@model DeletePersonalDataViewModel
+﻿@inject LocService SharedLocalizer
+@using NZFurs.Auth.Resources
+@using NZFurs.Auth.Views.Manage
+@model NZFurs.Auth.Models.ManageViewModels.DeletePersonalDataViewModel
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("DELETE_PERSONAL_DATA");
     ViewData["ActivePage"] = ManageNavPages.DeletePersonalData;

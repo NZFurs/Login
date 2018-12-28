@@ -1,6 +1,7 @@
-﻿@using StsServerIdentity.Resources
-@inject LocService SharedLocalizer
-@model ShowRecoveryCodesViewModel
+﻿@inject LocService SharedLocalizer
+@using NZFurs.Auth.Resources
+@using NZFurs.Auth.Views.Manage
+@model NZFurs.Auth.Models.ManageViewModels.ShowRecoveryCodesViewModel
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("Recovery codes");
     ViewData.AddActivePage(ManageNavPages.TwoFactorAuthentication);

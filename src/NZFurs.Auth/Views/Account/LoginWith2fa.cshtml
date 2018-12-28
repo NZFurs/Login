@@ -1,6 +1,6 @@
-﻿@using StsServerIdentity.Resources
-@inject LocService SharedLocalizer
-@model LoginWith2faViewModel
+﻿@inject LocService SharedLocalizer
+@using NZFurs.Auth.Resources
+@model NZFurs.Auth.Models.AccountViewModels.LoginWith2faViewModel
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_LOGIN_2FA");
 }

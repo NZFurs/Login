@@ -15,17 +15,13 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "StsServerIdentity": {
+    "NZFurs.Auth": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    },
-    "newProfile1": {
-      "commandName": "IISExpress",
-      "launchBrowser": true
     }
   }
 }

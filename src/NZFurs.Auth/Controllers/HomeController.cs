@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using IdentityServer4.Services;
-using StsServerIdentity.Models;
+using Microsoft.AspNetCore.Mvc;
+using NZFurs.Auth.Models;
 
-namespace StsServerIdentity.Controllers
+namespace NZFurs.Auth.Controllers
 {
     public class HomeController : Controller
     {

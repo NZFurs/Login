@@ -1,6 +1,7 @@
-﻿@using StsServerIdentity.Resources
-@inject LocService SharedLocalizer
-@model ExternalLoginsViewModel
+﻿@inject LocService SharedLocalizer
+@using NZFurs.Auth.Resources
+@using NZFurs.Auth.Views.Manage
+@model NZFurs.Auth.Models.ManageViewModels.ExternalLoginsViewModel
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("EXTERNAL_LOGINS_TITLE");
     ViewData.AddActivePage(ManageNavPages.ExternalLogins);

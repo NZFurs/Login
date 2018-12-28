@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace StsServerIdentity.Models.AccountViewModels
+namespace NZFurs.Auth.Models.AccountViewModels
 {
     public class SendCodeViewModel
     {

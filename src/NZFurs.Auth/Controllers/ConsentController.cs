@@ -1,17 +1,16 @@
-﻿using IdentityServer4.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Linq;
+﻿using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using StsServerIdentity.Models;
-using StsServerIdentity.Filters;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using StsServerIdentity.Resources;
-using System.Reflection;
+using Microsoft.Extensions.Logging;
+using NZFurs.Auth.Models;
+using NZFurs.Auth.Resources;
 
-namespace StsServerIdentity.Controllers
+namespace NZFurs.Auth.Controllers
 {
     /// <summary>
     /// This controller implements the consent logic

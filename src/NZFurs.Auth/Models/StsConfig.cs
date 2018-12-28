@@ -1,4 +1,4 @@
-﻿namespace StsServerIdentity.Models
+﻿namespace NZFurs.Auth.Models
 {
     public class StsConfig
     {

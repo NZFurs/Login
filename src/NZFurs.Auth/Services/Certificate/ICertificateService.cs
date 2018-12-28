@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 
-namespace StsServerIdentity.Services.Certificate
+namespace NZFurs.Auth.Services.Certificate
 {
     public interface ICertificateService
     {

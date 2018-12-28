@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-namespace StsServerIdentity.Views.Manage
+namespace NZFurs.Auth.Views.Manage
 {
     public static class ManageNavPages
     {

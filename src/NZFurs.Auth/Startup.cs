@@ -1,60 +1,52 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using IdentityServer4.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using IdentityServer4.Services;
-using System.Security.Cryptography.X509Certificates;
-using System.IO;
-using Microsoft.AspNetCore.Identity;
-using System.Globalization;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
-using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using StsServerIdentity.Services.Certificate;
-using StsServerIdentity.Models;
-using StsServerIdentity.Data;
-using StsServerIdentity.Resources;
-using StsServerIdentity.Services;
-using Microsoft.IdentityModel.Tokens;
-using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
-using StsServerIdentity.Filters;
+using NZFurs.Auth.Data;
+using NZFurs.Auth.Filters;
+using NZFurs.Auth.Models;
+using NZFurs.Auth.Options;
+using NZFurs.Auth.Resources;
+using NZFurs.Auth.Services;
+using NZFurs.Auth.Services.Certificate;
 
-namespace StsServerIdentity
+namespace NZFurs.Auth
 {
     public class Startup
     {
-        private readonly IHostingEnvironment _environment;
+        public IConfiguration Configuration { get; }
+        public IHostingEnvironment Environment { get; }
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
-
-            _environment = env;
-
-            builder.AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
+            Environment = environment;
         }
-
-        public IConfigurationRoot Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            #region Old stuff to remove
             var stsConfig = Configuration.GetSection("StsConfig");
             var useLocalCertStore = Convert.ToBoolean(Configuration["UseLocalCertStore"]);
             var certificateThumbprint = Configuration["CertificateThumbprint"];
 
             X509Certificate2 cert;
 
-            if (_environment.IsProduction())
+            if (Environment.IsProduction())
             {
                 if (useLocalCertStore)
                 {
@@ -76,32 +68,33 @@ namespace StsServerIdentity
             }
             else
             {
-                cert = new X509Certificate2(Path.Combine(_environment.ContentRootPath, "sts_dev_cert.pfx"), "1234");
+                cert = new X509Certificate2(Path.Combine(Environment.ContentRootPath, "sts_dev_cert.pfx"), "1234");
             }
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
             services.Configure<StsConfig>(Configuration.GetSection("StsConfig"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            #endregion
 
+            // ConfigureServices becomes a mess pretty quickly, so gonna use some regions
+            // Not even sorry. #fiteme
+
+            #region Options
+            services.AddOptions();
+            services.Configure<Argon2iPasswordHasherOptions>(Configuration.GetSection("Argon2i"));
+            //services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
+            //services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
+            #endregion
+
+            #region DbContext
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
+            #endregion
+
+            #region Localisation
             services.AddSingleton<LocService>();
             services.AddLocalization(options => options.ResourcesPath = "Resources");
-
-            services.AddAuthentication()
-                 .AddOpenIdConnect("aad", "Login with Azure AD", options =>
-                 {
-                     options.Authority = $"https://login.microsoftonline.com/common";
-                     options.TokenValidationParameters = new TokenValidationParameters { ValidateIssuer = false };
-                     options.ClientId = "99eb0b9d-ca40-476e-b5ac-6f4c32bfb530";
-                     options.CallbackPath = "/signin-oidc";
-                 });
-
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddErrorDescriber<StsIdentityErrorDescriber>()
-                .AddDefaultTokenProviders();
-
             services.Configure<RequestLocalizationOptions>(
                 options =>
                 {
@@ -127,11 +120,36 @@ namespace StsServerIdentity
 
                     options.RequestCultureProviders.Insert(0, providerQuery);
                 });
+            #endregion
 
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(new SecurityHeadersAttribute());
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            #region Authentication
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Google:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                })
+                .AddTwitter(options =>
+                {
+                    options.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
+                    options.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
+                });
+            #endregion
+
+            #region Identity
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddErrorDescriber<StsIdentityErrorDescriber>()
+                .AddDefaultTokenProviders();
+            #endregion
+
+            #region MVC
+            services
+                .AddMvc(options =>
+                {
+                    options.Filters.Add(new SecurityHeadersAttribute());
+                })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddViewLocalization()
                 .AddDataAnnotationsLocalization(options =>
                 {
@@ -141,11 +159,35 @@ namespace StsServerIdentity
                         return factory.Create("SharedResource", assemblyName.Name);
                     };
                 });
+            #endregion
 
-            services.AddTransient<IProfileService, IdentityWithAdditionalClaimsProfileService>();
-
+            #region Application Services
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
+            //services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
+            //services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();
 
+            //services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
+            services.AddTransient<IProfileService, IdentityWithAdditionalClaimsProfileService>(); // QUESTION: What is this for? Some IS4 thing...
+            #endregion
+
+            #region Cookie Policy
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/Logout";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            });
+
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => false;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            #endregion
+
+            #region IdentityServer4
             services.AddIdentityServer()
                 .AddSigningCredential(cert)
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
@@ -153,6 +195,7 @@ namespace StsServerIdentity
                 .AddInMemoryClients(Config.GetClients(stsConfig))
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<IdentityWithAdditionalClaimsProfileService>();
+            #endregion
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -181,7 +224,7 @@ namespace StsServerIdentity
                 .ImageSources(imageSrc => imageSrc.Self())
                 .ImageSources(imageSrc => imageSrc.CustomSources("data:"))
                 .ScriptSources(s => s.Self())
-                .ScriptSources(s => s.UnsafeInline())
+                .ScriptSources(s => s.UnsafeInline()) // TODO: HELL NO
             );
 
             var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();

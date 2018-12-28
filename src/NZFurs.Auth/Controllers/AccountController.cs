@@ -1,27 +1,27 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityModel;
+using IdentityServer4;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using StsServerIdentity.Models.AccountViewModels;
-using StsServerIdentity.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Models;
-using IdentityModel;
-using IdentityServer4;
-using IdentityServer4.Extensions;
-using System.Globalization;
-using StsServerIdentity.Services;
 using Microsoft.Extensions.Localization;
-using StsServerIdentity.Resources;
-using System.Reflection;
+using Microsoft.Extensions.Logging;
+using NZFurs.Auth.Models;
+using NZFurs.Auth.Models.AccountViewModels;
+using NZFurs.Auth.Resources;
+using NZFurs.Auth.Services;
 
-namespace StsServerIdentity.Controllers
+namespace NZFurs.Auth.Controllers
 {
     [Authorize]
     public class AccountController : Controller
@@ -435,7 +435,7 @@ namespace StsServerIdentity.Controllers
                 // Send an email with this link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                await _emailSender.SendEmail(
+                await _emailSender.SendEmailAsync(
                    model.Email, 
                    "Reset Password",
                    $"Please reset your password by clicking here: {callbackUrl}", 
@@ -550,7 +550,7 @@ namespace StsServerIdentity.Controllers
             var message = "Your security code is: " + code;
             if (model.SelectedProvider == "Email")
             {
-                await _emailSender.SendEmail(await _userManager.GetEmailAsync(user), "Security Code", message, "Hi Sir");
+                await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message, "Hi Sir");
             }
 
             return RedirectToAction(nameof(VerifyCode), new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });

@@ -1,6 +1,7 @@
-@using StsServerIdentity.Resources
 @inject LocService SharedLocalizer
-@model TwoFactorAuthenticationViewModel
+@using NZFurs.Auth.Resources
+@using NZFurs.Auth.Views.Manage
+@model NZFurs.Auth.Models.ManageViewModels.TwoFactorAuthenticationViewModel
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("2FA_AUTHENTICATION_TITLE");
     ViewData.AddActivePage(ManageNavPages.TwoFactorAuthentication);

@@ -1,6 +1,7 @@
-﻿@using StsServerIdentity.Resources
-@inject LocService SharedLocalizer
-@model IndexViewModel
+﻿@inject LocService SharedLocalizer
+@using NZFurs.Auth.Resources
+@using NZFurs.Auth.Views.Manage
+@model NZFurs.Auth.Models.ManageViewModels.IndexViewModel
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("PROFILE");
     ViewData.AddActivePage(ManageNavPages.Index);

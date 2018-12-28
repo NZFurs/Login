@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace StsServerIdentity.Filters
+namespace NZFurs.Auth.Filters
 {
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {

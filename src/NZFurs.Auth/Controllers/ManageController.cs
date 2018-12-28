@@ -1,23 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using StsServerIdentity.Models.ManageViewModels;
-using StsServerIdentity.Models;
-using StsServerIdentity.Services;
 using Microsoft.Extensions.Localization;
-using StsServerIdentity.Resources;
-using System.Reflection;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NZFurs.Auth.Models;
+using NZFurs.Auth.Models.ManageViewModels;
+using NZFurs.Auth.Resources;
+using NZFurs.Auth.Services;
+using QRCoder;
 
-namespace StsServerIdentity.Controllers
+namespace NZFurs.Auth.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]
@@ -134,7 +136,7 @@ namespace StsServerIdentity.Controllers
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
             var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-            await _emailSender.SendEmail(
+            await _emailSender.SendEmailAsync(
                model.Email,
                "StsServerIdentity Verification Email",
                $"Please verify by clicking here: {callbackUrl}",

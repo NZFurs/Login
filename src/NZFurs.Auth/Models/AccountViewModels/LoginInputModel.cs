@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace StsServerIdentity.Models
+namespace NZFurs.Auth.Models.AccountViewModels
 {
     public class LoginInputModel
     {

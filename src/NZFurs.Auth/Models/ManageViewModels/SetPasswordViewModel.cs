@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace StsServerIdentity.Models.ManageViewModels
+namespace NZFurs.Auth.Models.ManageViewModels
 {
     public class SetPasswordViewModel
     {
