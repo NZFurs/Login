@@ -32,6 +32,7 @@ namespace NZFurs.Auth.Controllers
         private readonly UrlEncoder _urlEncoder;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
+        private const string AuthenticatorIssuer = "NZFurs Login";
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
 
         private readonly IStringLocalizer _sharedLocalizer;
@@ -628,6 +629,27 @@ namespace NZFurs.Auth.Controllers
                 unformattedKey);
         }
 
+        private HtmlString RenderSvgQrCode(string username, string secretBase32, string issuer = AuthenticatorIssuer)
+        {
+            var generator = new PayloadGenerator.OneTimePassword
+            {
+                Secret = secretBase32,
+                Issuer = issuer,
+                Label = username,
+                Type = PayloadGenerator.OneTimePassword.OneTimePasswordAuthType.TOTP,
+                Period = 30,
+                Digits = 6,
+            };
+            string payload = generator.ToString();
+
+            QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.L);
+            SvgQRCode qrCode = new SvgQRCode(qrCodeData);
+            string qrCodeAsSvg = qrCode.GetGraphic(6);
+
+            return new HtmlString(qrCodeAsSvg);
+        }
+
         private async Task LoadSharedKeyAndQrCodeUriAsync(ApplicationUser user, EnableAuthenticatorViewModel model)
         {
             var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
@@ -639,6 +661,7 @@ namespace NZFurs.Auth.Controllers
 
             model.SharedKey = FormatKey(unformattedKey);
             model.AuthenticatorUri = GenerateQrCodeUri(user.Email, unformattedKey);
+            model.AuthenticatorQrCodeSvg = RenderSvgQrCode(user.UserName, model.SharedKey, AuthenticatorIssuer);
         }
 
         #endregion

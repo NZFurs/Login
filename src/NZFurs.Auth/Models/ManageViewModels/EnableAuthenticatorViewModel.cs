@@ -17,5 +17,8 @@ namespace NZFurs.Auth.Models.ManageViewModels
 
             [BindNever]
             public string AuthenticatorUri { get; set; }
+
+            [BindNever]
+            public HtmlString AuthenticatorQrCodeSvg { get; set; }
     }
 }
