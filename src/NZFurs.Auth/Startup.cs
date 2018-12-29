@@ -162,7 +162,7 @@ namespace NZFurs.Auth
             #endregion
 
             #region Application Services
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailSender, SendGridEmailSender>();
             services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
             //services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
             //services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();

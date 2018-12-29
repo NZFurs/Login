@@ -6,11 +6,11 @@ using SendGrid.Helpers.Mail;
 
 namespace NZFurs.Auth.Services
 {
-    public class EmailSender : IEmailSender
+    public class SendGridEmailSender : IEmailSender
     {
         private readonly IOptions<EmailSettings> _optionsEmailSettings;
 
-        public EmailSender(IOptions<EmailSettings> optionsEmailSettings)
+        public SendGridEmailSender(IOptions<EmailSettings> optionsEmailSettings)
         {
             _optionsEmailSettings = optionsEmailSettings;
         }
