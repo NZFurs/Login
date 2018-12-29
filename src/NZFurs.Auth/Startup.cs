@@ -22,7 +22,6 @@ using NZFurs.Auth.Models;
 using NZFurs.Auth.Options;
 using NZFurs.Auth.Resources;
 using NZFurs.Auth.Services;
-using NZFurs.Auth.Services.Certificate;
 
 namespace NZFurs.Auth
 {
@@ -41,35 +40,6 @@ namespace NZFurs.Auth
         {
             #region Old stuff to remove
             var stsConfig = Configuration.GetSection("StsConfig");
-            var useLocalCertStore = Convert.ToBoolean(Configuration["UseLocalCertStore"]);
-            var certificateThumbprint = Configuration["CertificateThumbprint"];
-
-            X509Certificate2 cert;
-
-            if (Environment.IsProduction())
-            {
-                if (useLocalCertStore)
-                {
-                    using (X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine))
-                    {
-                        store.Open(OpenFlags.ReadOnly);
-                        var certs = store.Certificates.Find(X509FindType.FindByThumbprint, certificateThumbprint, false);
-                        cert = certs[0];
-                        store.Close();
-                    }
-                }
-                else
-                {
-                    // Azure deployment, will be used if deployed to Azure
-                    var vaultConfigSection = Configuration.GetSection("Vault");
-                    var keyVaultService = new KeyVaultCertificateService(vaultConfigSection["Url"], vaultConfigSection["ClientId"], vaultConfigSection["ClientSecret"]);
-                    cert = keyVaultService.GetCertificateFromKeyVault(vaultConfigSection["CertificateName"]);
-                }
-            }
-            else
-            {
-                cert = new X509Certificate2(Path.Combine(Environment.ContentRootPath, "sts_dev_cert.pfx"), "1234");
-            }
 
             services.Configure<StsConfig>(Configuration.GetSection("StsConfig"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
@@ -81,8 +51,8 @@ namespace NZFurs.Auth
             #region Options
             services.AddOptions();
             services.Configure<Argon2iPasswordHasherOptions>(Configuration.GetSection("Argon2i"));
-            //services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
-            //services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
+            services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
+            services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
             #endregion
 
             #region DbContext
@@ -164,8 +134,8 @@ namespace NZFurs.Auth
             #region Application Services
             services.AddTransient<IEmailSender, SendGridEmailSender>();
             services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
-            //services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
-            //services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();
+            services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
+            services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();
 
             //services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
             services.AddTransient<IProfileService, IdentityWithAdditionalClaimsProfileService>(); // QUESTION: What is this for? Some IS4 thing...
@@ -189,7 +159,6 @@ namespace NZFurs.Auth
 
             #region IdentityServer4
             services.AddIdentityServer()
-                .AddSigningCredential(cert)
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients(stsConfig))
@@ -230,7 +199,7 @@ namespace NZFurs.Auth
             var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             app.UseRequestLocalization(locOptions.Value);
 
-            app.UseStaticFiles(new StaticFileOptions()
+            app.UseStaticFiles(new StaticFileOptions
             {
                 OnPrepareResponse = context =>
                 {
