@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using NZFurs.Auth.Data;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -11,7 +14,7 @@ namespace NZFurs.Auth
 {
     public class Program
     {
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -22,8 +25,15 @@ namespace NZFurs.Auth
 
             try
             {
-                Log.Information("Starting web host");
-                CreateWebHostBuilder(args).Build().Run();
+                Log.Information("Building web host");
+                var host = CreateWebHostBuilder(args).Build();
+
+                Log.Information("Checking for seed data");
+                await SeedData.EnsureSeedDataAsync(host.Services);
+
+                Log.Information("Running web host");
+                host.Run();
+
                 return 0;
             }
             catch (Exception ex)
