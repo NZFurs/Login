@@ -67,6 +67,8 @@ namespace NZFurs.Auth
                             preVaultConfig["Azure:ActiveDirectory:ClientSecrets:0"] // TODO: How do we fall back to secondary secrets?
                         );
                     }
+
+                    config.Validate(File.ReadAllText("configurationschema.json"), throwOnError: true);
                 })
                 .UseStartup<Startup>()
                 .UseKestrel(c => c.AddServerHeader = false)
