@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -44,18 +42,30 @@ namespace NZFurs.Auth.Services
 
         public virtual async Task<string> CreateTokenAsync(Token token)
         {
-            var header = await CreateHeaderAsync(token);
+            var signingCredential = await GetSigningCredentialsAsync();
+
+            var header = await CreateHeaderAsync(signingCredential);
             var payload = await CreatePayloadAsync(token);
 
-            return await CreateJwtAsync(new JwtSecurityToken(header, payload));
+            var unsignedJwtSecurityToken = new JwtSecurityToken(header, payload);
+
+            return await CreateJwtAsync(unsignedJwtSecurityToken);
         }
 
         public async Task<SigningCredentials> GetSigningCredentialsAsync()
         {
             var keyBundle = await _keyVaultClient.GetKeyAsync($"https://{_keyVaultClientOptions.KeyVault}.vault.azure.net", _keyVaultClientOptions.KeyName);
-            var securityKey = GetSecurityKeyForKeyBundle(keyBundle);
 
-            return new SigningCredentials(securityKey, SecurityAlgorithms.Sha256Digest);
+            if (keyBundle == null)
+            {
+                throw new ApplicationException("No signing key was found in key vault. Can't create JWT token");
+            }
+
+            var keyBundleAlgorithm = GetAlgorithmForKeyBundle(keyBundle);
+            var securityKey = GetSecurityKeyForKeyBundle(keyBundle);
+            securityKey.KeyId = keyBundle.Key.Kid;
+
+            return new SigningCredentials(securityKey, keyBundleAlgorithm);
         }
 
         public async Task<IEnumerable<SecurityKey>> GetValidationKeysAsync()
@@ -88,32 +98,11 @@ namespace NZFurs.Auth.Services
         /// <summary>
         /// Creates the JWT header
         /// </summary>
-        /// <param name="token">The token.</param>
+        /// <param name="signingCredentials"></param>
         /// <returns>The JWT header</returns>
-        protected virtual async Task<JwtHeader> CreateHeaderAsync(Token token)
+        protected virtual Task<JwtHeader> CreateHeaderAsync(SigningCredentials signingCredentials)
         {
-            var credential = await GetSigningCredentialsAsync();
-
-            if (credential == null)
-            {
-                throw new InvalidOperationException("No signing credential is configured. Can't create JWT token");
-            }
-
-            var header = new JwtHeader(credential);
-
-            // emit x5t claim for backwards compatibility with v4 of MS JWT library
-            if (credential.Key is X509SecurityKey x509key)
-            {
-                var cert = x509key.Certificate;
-                if (_systemClock.UtcNow.UtcDateTime > cert.NotAfter)
-                {
-                    _logger.LogWarning("Certificate {subjectName} has expired on {expiration}", cert.Subject, cert.NotAfter.ToString(CultureInfo.InvariantCulture));
-                }
-
-                header["x5t"] = Base64Url.Encode(cert.GetCertHash());
-            }
-
-            return header;
+            return Task.FromResult(new JwtHeader(signingCredentials));
         }
 
         /// <summary>
@@ -131,17 +120,17 @@ namespace NZFurs.Auth.Services
         /// Applies the signature to the JWT
         /// </summary>
         /// <param name="jwt">The JWT object.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The signed JWT</returns>
         protected virtual async Task<string> CreateJwtAsync(JwtSecurityToken jwt, CancellationToken cancellationToken = default)
         {
-            var keyId = jwt.EncryptingCredentials.Key.KeyId;
-            var keyBundle = await _keyVaultClient.GetKeyAsync(keyId, cancellationToken);
-
             var rawDataBytes = System.Text.Encoding.UTF8.GetBytes(jwt.EncodedHeader + "." + jwt.EncodedPayload); // TODO: Is UTF-8 correct?
 
-            var rawSignature = await _keyVaultClient.SignAsync(keyId, GetAlgorithmForKeyBundle(keyBundle), rawDataBytes, cancellationToken);
+            var sigOperationResponse = await _keyVaultClient.SignAsync(jwt.Header.Kid, jwt.Header.Alg, rawDataBytes.Sha256(), cancellationToken);
 
-            return jwt.EncodedHeader + "." + jwt.EncodedPayload + "." + rawSignature;
+            var rawSignatureBytes = sigOperationResponse.Result;
+
+            return jwt.EncodedHeader + "." + jwt.EncodedPayload + "." + Convert.ToBase64String(rawSignatureBytes);
         }
 
         private async Task<string> GetAzureActiveDirectoryToken(string authority, string resource, string scope)
@@ -164,30 +153,19 @@ namespace NZFurs.Auth.Services
             {
                 case JsonWebAlgorithmsKeyTypes.RSA:
                 case "RSA-HSM":
-                    var rsa = keyBundle.Key.ToRSA(false);
-                    switch (rsa.KeySize)
-                    {
-                        case 256:
-                            return JsonWebKeySignatureAlgorithm.RS256;
-                        case 384:
-                            return JsonWebKeySignatureAlgorithm.RS384;
-                        case 512:
-                            return JsonWebKeySignatureAlgorithm.RS512;
-                        default:
-                            throw new Exception("RSA Key Vault key uses an unsupported key size.");
-                    }
+                    // TODO: Support longer digest lengths
+                    return JsonWebKeySignatureAlgorithm.RS256;
                 case JsonWebAlgorithmsKeyTypes.EllipticCurve:
                 case "EC-HSM":
                     switch (keyBundle.Key.CurveName)
                     {
                         case JsonWebKeyCurveName.P256:
-                            return JsonWebKeySignatureAlgorithm.ES256;
                         case JsonWebKeyCurveName.P384:
-                            return JsonWebKeySignatureAlgorithm.ES384;
-                        case JsonWebKeyCurveName.P521: // TODO: Is 521 a typo?
-                            return JsonWebKeySignatureAlgorithm.ES512;
+                        case JsonWebKeyCurveName.P521:
+                            return JsonWebKeySignatureAlgorithm.ES256;
                         case JsonWebKeyCurveName.P256K:
                             return JsonWebKeySignatureAlgorithm.ES256K;
+                        // TODO: Support longer digest lengths
                         default:
                             throw new Exception("EC Key Vault key uses an unsupported curve.");
                     }
