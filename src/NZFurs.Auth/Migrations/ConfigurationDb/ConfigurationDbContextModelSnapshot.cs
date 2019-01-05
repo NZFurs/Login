@@ -14,7 +14,7 @@ namespace NZFurs.Auth.Migrations.ConfigurationDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024");
+                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResource", b =>
                 {
@@ -36,6 +36,8 @@ namespace NZFurs.Auth.Migrations.ConfigurationDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200);
+
+                    b.Property<bool>("NonEditable");
 
                     b.Property<DateTime?>("Updated");
 
@@ -217,6 +219,8 @@ namespace NZFurs.Auth.Migrations.ConfigurationDb
                     b.Property<string>("Description")
                         .HasMaxLength(1000);
 
+                    b.Property<int>("DeviceCodeLifetime");
+
                     b.Property<bool>("EnableLocalLogin");
 
                     b.Property<bool>("Enabled");
@@ -234,6 +238,8 @@ namespace NZFurs.Auth.Migrations.ConfigurationDb
 
                     b.Property<string>("LogoUri")
                         .HasMaxLength(2000);
+
+                    b.Property<bool>("NonEditable");
 
                     b.Property<string>("PairWiseSubjectSalt")
                         .HasMaxLength(200);
@@ -257,6 +263,11 @@ namespace NZFurs.Auth.Migrations.ConfigurationDb
                     b.Property<bool>("UpdateAccessTokenClaimsOnRefresh");
 
                     b.Property<DateTime?>("Updated");
+
+                    b.Property<string>("UserCodeType")
+                        .HasMaxLength(100);
+
+                    b.Property<int?>("UserSsoLifetime");
 
                     b.HasKey("Id");
 
@@ -485,6 +496,8 @@ namespace NZFurs.Auth.Migrations.ConfigurationDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200);
+
+                    b.Property<bool>("NonEditable");
 
                     b.Property<bool>("Required");
 

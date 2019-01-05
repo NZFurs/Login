@@ -1,12 +1,10 @@
-﻿using IdentityServer4.Services;
+﻿using System.Threading.Tasks;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
-using NZFurs.Auth.Helpers;
-using NZFurs.Auth.Models.HomeViewModels;
-using System.Threading.Tasks;
+using NZFurs.Auth.Models;
 
 namespace NZFurs.Auth.Controllers
 {
-    [SecurityHeaders]
     public class HomeController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;
@@ -20,6 +18,7 @@ namespace NZFurs.Auth.Controllers
         {
             return View();
         }
+
 
         /// <summary>
         /// Shows the error page

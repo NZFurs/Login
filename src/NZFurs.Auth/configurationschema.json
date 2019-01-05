@@ -1,0 +1,50 @@
+﻿{
+  "Argon2i:DegreeOfParallelism": { 
+    "required": true
+  },
+  "Argon2i:HashSize": {
+    "required": true
+  },
+  "Argon2i:KnownSecretBase64": {
+    "required": true
+  },
+  "Argon2i:Iterations": {
+    "required": true
+  },
+  "Argon2i:MemorySize": {
+    "required": true
+  },
+  "Argon2i:SaltSize": {
+    "required": true
+  },
+  "Authentication:Google:ClientId": {
+    "required": true
+  },
+  "Authentication:Google:ClientSecret": {
+    "required": true
+  },
+  "Authentication:Twitter:ConsumerKey": {
+    "required": true
+  },
+  "Authentication:Twitter:ConsumerSecret": {
+    "required": true
+  },
+  "Azure:ActiveDirectory:ClientId": {
+    "required": true
+  },
+  "Azure:ActiveDirectory:ClientSecrets:0": {
+    "required": true
+  },
+  "Azure:KeyVault:KeyName": {
+    "required": true
+  },
+  "Azure:KeyVault:KeyVault": {
+    "required": true
+  },
+  "ConnectionStrings:DefaultConnection": {
+    "required": true
+  },
+  "IdentityServer4:PublicOrigin": {
+    "required": true
+  }
+}

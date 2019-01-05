@@ -14,7 +14,7 @@ namespace NZFurs.Auth.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024");
+                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -133,7 +133,7 @@ namespace NZFurs.Auth.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
-                    b.Property<DateTime>("DateOfBirth");
+                    b.Property<DateTime?>("DateOfBirth");
 
                     b.Property<int>("DateOfBirthPublicFlags");
 
@@ -142,13 +142,15 @@ namespace NZFurs.Auth.Migrations
 
                     b.Property<bool>("EmailConfirmed");
 
-                    b.Property<string>("FursonaFullName");
+                    b.Property<string>("FursonaName");
 
-                    b.Property<string>("FursonaShortName");
+                    b.Property<string>("FursonaSpecies");
 
                     b.Property<string>("IrlFullName");
 
                     b.Property<string>("IrlShortName");
+
+                    b.Property<bool>("IsAdmin");
 
                     b.Property<bool>("LockoutEnabled");
 

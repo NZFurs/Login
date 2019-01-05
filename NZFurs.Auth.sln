@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NZFurs.Auth", "src\NZFurs.Auth\NZFurs.Auth.csproj", "{1ECB5581-FFA5-4C11-A491-C85ABD962033}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NZFurs.Auth", "src\NZFurs.Auth\NZFurs.Auth.csproj", "{25920D7F-C468-47EC-8B3E-53CCB20C59A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,16 +22,16 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25920D7F-C468-47EC-8B3E-53CCB20C59A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25920D7F-C468-47EC-8B3E-53CCB20C59A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25920D7F-C468-47EC-8B3E-53CCB20C59A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25920D7F-C468-47EC-8B3E-53CCB20C59A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{1ECB5581-FFA5-4C11-A491-C85ABD962033} = {2408EC7B-2E06-46A5-B6AC-D4E985E30CBB}
+		{25920D7F-C468-47EC-8B3E-53CCB20C59A3} = {2408EC7B-2E06-46A5-B6AC-D4E985E30CBB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DA180829-4EA8-4C3B-BCF1-0379C9588BE6}

@@ -91,6 +91,8 @@ namespace NZFurs.Auth.Data
 
         private static readonly IEnumerable<IdentityResource> IdentityResources = new List<IdentityResource>
         {
+            new IdentityResources.OpenId(),
+            new IdentityResources.Profile(),
             new IdentityResource
             {
                 Name = "Fursona",

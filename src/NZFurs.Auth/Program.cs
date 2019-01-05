@@ -1,41 +1,53 @@
-﻿using Microsoft.AspNetCore;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using NZFurs.Auth.Data;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace NZFurs.Auth
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            Console.Title = "NZFurs OpenID Connect Provider";
-
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                .MinimumLevel.Override("System", LogEventLevel.Warning)
-                .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 .Enrich.FromLogContext()
-                .WriteTo.File(@"Data/Log/log.txt")
-                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}", theme: AnsiConsoleTheme.Literate)
+                .WriteTo.Console()
                 .CreateLogger();
 
-            var host = BuildWebHost(args);
+            try
+            {
+                Log.Information("Building web host");
+                var host = CreateWebHostBuilder(args).Build();
 
-            await SeedData.EnsureSeedDataAsync(host.Services);
+                Log.Information("Checking for seed data");
+                await SeedData.EnsureSeedDataAsync(host.Services);
 
-            host.Run();
+                Log.Information("Running web host");
+                host.Run();
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
@@ -55,13 +67,15 @@ namespace NZFurs.Auth
                             preVaultConfig["Azure:ActiveDirectory:ClientSecrets:0"] // TODO: How do we fall back to secondary secrets?
                         );
                     }
-                })
-                .ConfigureLogging(builder =>
-                {
-                    builder.ClearProviders();
-                    builder.AddSerilog();
+
+                    config.Validate(File.ReadAllText("configurationschema.json"), throwOnError: true);
                 })
                 .UseStartup<Startup>()
-                .Build();
+                .UseKestrel(c => c.AddServerHeader = false)
+                .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
+                    .ReadFrom.Configuration(hostingContext.Configuration)
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+                );
     }
 }
