@@ -1,4 +1,4 @@
-# NZFurs Login Server  ![GitHub](https://img.shields.io/github/license/nzfurs/logins.svg)
+# NZFurs Login Server ![License](https://img.shields.io/github/license/NZFurs/Login.svg)
 
 ## Code ![GitHub last commit](https://img.shields.io/github/last-commit/nzfurs/login.svg) ![GitHub issues](https://img.shields.io/github/issues/nzfurs/login.svg)
 
