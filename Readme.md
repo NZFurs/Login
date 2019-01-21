@@ -6,4 +6,4 @@
 
 ## Docker ![Docker Pulls](https://img.shields.io/docker/pulls/nzfurs/login.svg)
 
-## Server 
+## Server ![Production](https://img.shields.io/website-up-down-green-red/https/login.furry.nz.svg?label=Production) ![Development](https://img.shields.io/website-up-down-green-red/https/dev.login.furry.nz.svg?label=Development)
