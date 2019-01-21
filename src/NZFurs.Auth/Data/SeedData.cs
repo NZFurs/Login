@@ -83,7 +83,7 @@ namespace NZFurs.Auth.Data
                 IncludeJwtId = true,
                 RedirectUris =
                 {
-                    "http://fakeurl.infursec.furry.nz/callback",
+                    "http://fakeurl.infursec.furry.nz/callback",  // DevSkim: ignore DS137138 - URL is a local callback used in development scenarios
                 },
                 RequireConsent = true,
             },
