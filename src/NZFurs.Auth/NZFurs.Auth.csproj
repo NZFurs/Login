@@ -40,7 +40,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Config\" />
     <Folder Include="Data\Database\" />
+    <Folder Include="Data\Logs\" />
   </ItemGroup>
    
    <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('node_modules') ">
@@ -52,5 +54,13 @@
     <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
     <Exec WorkingDirectory="" Command="npm install" />
   </Target>
-   
+
+  <Target Name="CreateDatabaseFolder" AfterTargets="AfterPublish">
+    <MakeDir Directories="$(PublishDir)Data\Database" Condition="!Exists('$(PublishDir)Data\Database')" />
+  </Target>
+
+  <Target Name="CreateLogsFolder" AfterTargets="AfterPublish">
+    <MakeDir Directories="$(PublishDir)Data\Logs" Condition="!Exists('$(PublishDir)Data\Logs')" />
+  </Target>
+
 </Project>
