@@ -55,7 +55,7 @@ namespace NZFurs.Auth
                     config.AddJsonFile("Data/Config/appsettings.json", optional: false, reloadOnChange: false);
                     config.AddJsonFile($"Data/Config/appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
                     config.AddUserSecrets<Startup>();
-                    config.AddEnvironmentVariables(prefix: "NZFURS__AUTH__");
+                    config.AddEnvironmentVariables(prefix: "NZFURS:AUTH:");
                     config.AddCommandLine(args);
 
                     if (!hostingContext.HostingEnvironment.IsDevelopment())
