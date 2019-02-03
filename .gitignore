@@ -1,7 +1,8 @@
-src/NzFurs.Auth/tempkey.rsa
-src/NzFurs.Auth/Data/Database/sqlite.db
+/src/NzFurs.Auth/Data/Database/sqlite.db
+/*.env
 
-# Created by https://www.gitignore.io/api/linux,macos,csharp,windows,aspnetcore,visualstudio,visualstudiocode
+# Created by https://www.gitignore.io/api/sass,rider,linux,macos,csharp,windows,aspnetcore,visualstudio,visualstudiocode
+# Edit at https://www.gitignore.io/?templates=sass,rider,linux,macos,csharp,windows,aspnetcore,visualstudio,visualstudiocode
 
 ### ASPNETCore ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -280,10 +281,13 @@ __pycache__/
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # User-specific files
+*.rsuser
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 
 # Build results
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
 
 # Visual Studio 2015/2017 cache/options directory
 # Uncomment if you have tasks that create the project's static files in wwwroot
@@ -378,6 +382,7 @@ StyleCopReport.xml
 # Visual Studio cache files
 # files ending in .cache can be ignored
 # but keep track of directories ending in .cache
+!?*.[Cc]ache/
 
 # Others
 
@@ -388,6 +393,8 @@ StyleCopReport.xml
 # Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
 #bower_components/
+# ASP.NET Core default setup: bower directory is configured as wwwroot/lib/ and bower restore is true
+**/wwwroot/lib/
 
 # RIA/Silverlight projects
 
@@ -463,6 +470,9 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
+# BeatPulse healthcheck temp database
+healthchecksdb
+
 ### Linux ###
 
 # temporary files which can be created if a process still has a handle open of a deleted file
@@ -505,12 +515,89 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+### Rider ###
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Gradle and Maven with auto-import
+# When using Gradle or Maven with auto-import, you should exclude module files,
+# since they will be recreated, and may cause churn.  Uncomment if using
+# auto-import.
+# .idea/modules.xml
+# .idea/*.iml
+# .idea/modules
+
+# CMake
+cmake-build-*/
+
+# Mongo Explorer plugin
+.idea/**/mongoSettings.xml
+
+# File-based project format
+*.iws
+
+# IntelliJ
+out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Cursive Clojure plugin
+.idea/replstate.xml
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Editor-based Rest Client
+.idea/httpRequests
+
+# Android studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
+
+### Sass ###
+*.css.map
+*.sass.map
+*.scss.map
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
 
 ### Windows ###
 # Windows thumbnail cache files
@@ -639,6 +726,7 @@ $RECYCLE.BIN/
 # Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
 #bower_components/
+# ASP.NET Core default setup: bower directory is configured as wwwroot/lib/ and bower restore is true
 
 # RIA/Silverlight projects
 
@@ -696,5 +784,6 @@ $RECYCLE.BIN/
 
 # Local History for Visual Studio
 
+# BeatPulse healthcheck temp database
 
-# End of https://www.gitignore.io/api/linux,macos,csharp,windows,aspnetcore,visualstudio,visualstudiocode
+# End of https://www.gitignore.io/api/sass,rider,linux,macos,csharp,windows,aspnetcore,visualstudio,visualstudiocode
