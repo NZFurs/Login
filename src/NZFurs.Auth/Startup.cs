@@ -38,13 +38,6 @@ namespace NZFurs.Auth
 
         public void ConfigureServices(IServiceCollection services)
         {
-            #region Old stuff to remove
-            var stsConfig = Configuration.GetSection("StsConfig");
-
-            services.Configure<StsConfig>(Configuration.GetSection("StsConfig"));
-            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
-            #endregion
-
             // ConfigureServices becomes a mess pretty quickly, so gonna use some regions
             // Not even sorry. #fiteme
 
@@ -53,6 +46,7 @@ namespace NZFurs.Auth
             services.Configure<Argon2iPasswordHasherOptions>(Configuration.GetSection("Argon2i"));
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
+            services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
             #endregion
 
             #region DbContext

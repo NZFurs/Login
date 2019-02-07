@@ -8,16 +8,16 @@ namespace NZFurs.Auth.Services
 {
     public class SendGridEmailSender : IEmailSender
     {
-        private readonly IOptions<EmailSettings> _optionsEmailSettings;
+        private readonly IOptions<SendGridOptions> _optionsEmailSettings;
 
-        public SendGridEmailSender(IOptions<EmailSettings> optionsEmailSettings)
+        public SendGridEmailSender(IOptions<SendGridOptions> optionsEmailSettings)
         {
             _optionsEmailSettings = optionsEmailSettings;
         }
 
         public async Task SendEmailAsync(string email, string subject, string message, string toUsername)
         {
-            var client = new SendGridClient(_optionsEmailSettings.Value.SendGridApiKey);
+            var client = new SendGridClient(_optionsEmailSettings.Value.ApiKey);
             var msg = new SendGridMessage();
             msg.SetFrom(new EmailAddress(_optionsEmailSettings.Value.SenderEmailAddress, "damienbod"));
             msg.AddTo(new EmailAddress(email, toUsername));

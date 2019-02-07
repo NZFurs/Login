@@ -1,8 +1,8 @@
 ﻿namespace NZFurs.Auth.Models
 {
-    public class EmailSettings
+    public class SendGridOptions
     {
-        public string SendGridApiKey { get; set; }
+        public string ApiKey { get; set; }
         public string SenderEmailAddress { get; set; }
     }
 }
