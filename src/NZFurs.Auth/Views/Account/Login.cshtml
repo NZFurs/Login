@@ -7,56 +7,56 @@
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_LOGIN");
 }
 
-<h2>@ViewData["Title"]</h2>
-<div class="row">
-    <div class="col col-md-6">
+<h2 class="font-hairline mb-6 text-center">@ViewData["Title"]</h2>
+<div class="container mx-auto h-full flex justify-center items-center">
+    <div class="w-1/3">
         <section>
-            <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <div class="form-group">
-                    <label class="col-md-4 control-label">@SharedLocalizer.GetLocalizedHtmlString("EMAIL")</label>
-                    <div class="col-md-8">
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+            <div class="border-blue p-8 border-t-8 bg-white mb-6 rounded-lg shadow-lg">
+                <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@Model.ReturnUrl" method="post"  >
+                    <div asp-validation-summary="All" class="list-reset" ></div>
+                    <div class="mb-4">
+                        <label class="font-bold text-grey-darker block mb-2" >@SharedLocalizer.GetLocalizedHtmlString("EMAIL")</label>
+                        <div  >
+                            <input asp-for="Email" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow" />
+                            <span asp-validation-for="Email" class="text-red" ></span>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-md-4 control-label">@SharedLocalizer.GetLocalizedHtmlString("PASSWORD")</label>
-                    <div class="col-md-8">
-                        <input asp-for="Password" class="form-control" type="password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                    <div class="mb-4">
+                        <label class="font-bold text-grey-darker block mb-2" >@SharedLocalizer.GetLocalizedHtmlString("PASSWORD")</label>
+                        <div  >
+                            <input asp-for="Password" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded shadow" />
+                            <span asp-validation-for="Password" class="text-red" ></span>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-md-4 control-label">@SharedLocalizer.GetLocalizedHtmlString("REMEMBER_ME")</label>
-                    <div class="checkbox col-md-8">
-                        <input asp-for="RememberLogin" class="big_checkbox"/>
+                    <div class="mb-4">
+                        <label  >@SharedLocalizer.GetLocalizedHtmlString("REMEMBER_ME")</label>
+                        <input asp-for="RememberLogin"  />
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-md-offset-4 col-md-8">
-                        <button type="submit" class="btn btn-primary">@SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_LOGIN")</button>
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between">
+                            <button type="submit" class="bg-blue-dark hover:bg-blue text-white font-bold py-2 px-4 rounded" >@SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_LOGIN")</button>
+                        </div>
                     </div>
-                </div>
-                <p>
-                    <a asp-action="Register" asp-route-returnurl="@Model.ReturnUrl">@SharedLocalizer.GetLocalizedHtmlString("REGISTER_AS_NEW_USER")</a>
-                </p>
-                <p>
-                    <a asp-action="ForgotPassword">@SharedLocalizer.GetLocalizedHtmlString("FORGOT_YOUR_PASSWORD")</a>
-                </p>
-            </form>
+                    <p>
+                        <a asp-action="Register" asp-route-returnurl="@Model.ReturnUrl">@SharedLocalizer.GetLocalizedHtmlString("REGISTER_AS_NEW_USER")</a>
+                    </p>
+                    <p>
+                        <a asp-action="ForgotPassword">@SharedLocalizer.GetLocalizedHtmlString("FORGOT_YOUR_PASSWORD")</a>
+                    </p>
+                </form>
+            </div>
         </section>
     </div>
 
     @if (Model.ExternalProviders.Any())
     {
-        <div class="col col-md-6">
-            <div class="panel-body">
-                <ul class="list-inline">
+        <div  >
+            <div  >
+                <ul  >
                     @foreach (var provider in Model.ExternalProviders)
                     {
                         <li>
-                            <a class="btn btn-primary"
+                            <a   
                                asp-action="ExternalLogin"
                                asp-route-provider="@provider.AuthenticationScheme"
                                asp-route-returnUrl="@Model.ReturnUrl">
