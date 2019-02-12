@@ -40,7 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Config\" />
     <Folder Include="Data\Database\" />
     <Folder Include="Data\Logs\" />
   </ItemGroup>
