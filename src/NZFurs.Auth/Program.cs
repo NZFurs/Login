@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureKeyVault;
 using NZFurs.Auth.Data;
 using Serilog;
 using Serilog.Events;
@@ -14,6 +19,9 @@ namespace NZFurs.Auth
 {
     public class Program
     {
+        private static Dictionary<string, X509Certificate2> _certificates = new Dictionary<string, X509Certificate2>();
+        private static KeyVaultClient _keyVaultClient;
+
         public static async Task<int> Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
@@ -63,19 +71,51 @@ namespace NZFurs.Auth
                         var preVaultConfig = config.Build();
                         config.AddAzureKeyVault(
                             $"https://{preVaultConfig["Azure:KeyVault:KeyVault"]}.vault.azure.net/",
-                            preVaultConfig["Azure:ActiveDirectory:ClientId"],
-                            preVaultConfig["Azure:ActiveDirectory:ClientSecrets:0"] // TODO: How do we fall back to secondary secrets?
+                            GetKeyVaultClient(preVaultConfig.GetConnectionString("AzureServiceTokenProvider")),
+                            new DefaultKeyVaultSecretManager()
                         );
                     }
 
                     config.Validate(File.ReadAllText("configurationschema.json"), throwOnError: true);
                 })
                 .UseStartup<Startup>()
-                .UseKestrel(c => c.AddServerHeader = false)
+                .UseKestrel((hostContext, options) =>
+                {
+                    options.AddServerHeader = false;
+                    options.ConfigureHttpsDefaults(h =>
+                    {
+                        h.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                        h.CheckCertificateRevocation = true;
+                        h.ServerCertificateSelector = (features, name) =>
+                        {
+                            var hostname = name ?? hostContext.Configuration["DefaultHostname"];
+                            if (!_certificates.ContainsKey(hostname))
+                            {
+                                var keyVaultClient = GetKeyVaultClient(hostContext.Configuration.GetConnectionString("AzureServiceTokenProvider"));
+                                var pfxBase64String = _keyVaultClient.GetSecretAsync($"https://{hostContext.Configuration["Azure:KeyVault:KeyVault"]}.vault.azure.net/", hostname).GetAwaiter().GetResult().Value;
+                                _certificates[hostname] = new X509Certificate2(Convert.FromBase64String(pfxBase64String));
+                            }
+
+                            return _certificates[hostname];
+                        };
+                    });
+                })
                 .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
                     .ReadFrom.Configuration(hostingContext.Configuration)
                     .Enrich.FromLogContext()
                     .WriteTo.Console(theme: AnsiConsoleTheme.Code)
                 );
+
+        private static KeyVaultClient GetKeyVaultClient(string connectionString)
+        {
+            if (_keyVaultClient == null)
+            {
+                var azureServiceTokenProvider = new AzureServiceTokenProvider(connectionString);
+                _keyVaultClient = new KeyVaultClient(
+                    new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback)
+                );
+            }
+            return _keyVaultClient;
+        }
     }
 }

@@ -44,6 +44,9 @@
   "ConnectionStrings:DefaultConnection": {
     "required": true
   },
+  "ConnectionStrings:AzureServiceTokenProvider": {
+    "required": true
+  },
   "IdentityServer4:PublicOrigin": {
     "required": true
   }
