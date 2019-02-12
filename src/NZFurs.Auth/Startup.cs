@@ -173,6 +173,21 @@ namespace NZFurs.Auth
                 })
                 .AddProfileService<IdentityWithAdditionalClaimsProfileService>();
             #endregion
+
+            #region HTTPS/HSTS
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(365);
+            });
+
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status301MovedPermanently;
+                options.HttpsPort = 5001;
+            });
+            #endregion
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -185,9 +200,11 @@ namespace NZFurs.Auth
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
             }
 
-            app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains());
+            app.UseHttpsRedirection();
+
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.NoReferrer());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
