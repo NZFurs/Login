@@ -11,11 +11,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using NZFurs.Auth.Data;
 using NZFurs.Auth.Filters;
 using NZFurs.Auth.Models;
@@ -50,10 +52,7 @@ namespace NZFurs.Auth
             #endregion
 
             #region DbContext
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
-            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
+            services.AddDbContext<ApplicationDbContext>(ConfigureEfProvider);
             #endregion
 
             #region Localisation
@@ -157,16 +156,12 @@ namespace NZFurs.Auth
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddConfigurationStore(options =>
                 {
-                    options.ConfigureDbContext = b =>
-                        b.UseSqlite(connectionString,
-                            sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = ConfigureEfProvider;
                 })
                 // this adds the operational data from DB (codes, tokens, consents)
                 .AddOperationalStore(options =>
                 {
-                    options.ConfigureDbContext = b =>
-                        b.UseSqlite(connectionString,
-                            sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = ConfigureEfProvider;
 
                     // this enables automatic token cleanup. this is optional.
                     options.EnableTokenCleanup = true;
@@ -252,6 +247,56 @@ namespace NZFurs.Auth
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void ConfigureEfProvider(DbContextOptionsBuilder options)
+        {
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+
+            switch (Configuration.GetValue("Data:Database:Provider", string.Empty).ToLowerInvariant())
+            {
+                case "mysql":
+                case "mariadb":
+                    throw new NotSupportedException(@"MySQL/MariaDB is not currently supported.");
+                case "postgres":
+                case "postgresql":
+                    var connectionString =
+                        Configuration.GetValue<string>("Data:Database:ConnectionString", null)
+                        ?? new NpgsqlConnectionStringBuilder
+                        {
+                            Database = Configuration.GetValue<string>("Data:Database:Database"),
+                            Host = Configuration.GetValue<string>("Data:Database:Host"),
+                            Port = Configuration.GetValue("Data:Database:Port", 5432),
+                            Username = Configuration.GetValue("Data:Database:Username", string.Empty),
+                            Password = Configuration.GetValue("Data:Database:Password", string.Empty),
+                            SslMode = Configuration.GetValue<bool>("Data:Database:RequireSSL", false)
+                                ? SslMode.Require
+                                : SslMode.Prefer,
+                        }.ToString();
+
+                    options.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+
+                    break;
+                case "oracle":
+                    throw new NotSupportedException(@"Ha, no. Oracle can fuck right off. https://web.archive.org/web/20150811052336/https://blogs.oracle.com/maryanndavidson/entry/no_you_really_can_t");
+                case "sqlserver":
+                    throw new NotSupportedException(@"Microsoft SQL Server is not currently supported. This may come in a future release because it's easy to implement, but it may be buggy and won't be officially maintained.");
+                case "sqlite":
+                default:
+                    var databasePath = new DirectoryInfo(Path.Combine("data", "database"));
+                    if (!databasePath.Exists)
+                        databasePath.Create();
+
+                    var connectionStringBuilder = new SqliteConnectionStringBuilder
+                    {
+                        DataSource = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            Configuration.GetValue("Paths:Database", "data/database"),
+                            Configuration.GetValue("Data:Database:Filename", "data.db"))
+                    };
+                    options.UseSqlite(connectionStringBuilder.ToString());
+                    break;
+            }
         }
     }
 }
