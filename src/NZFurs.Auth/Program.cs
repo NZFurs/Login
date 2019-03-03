@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using NZFurs.Auth.Data;
 using Serilog;
@@ -35,6 +38,17 @@ namespace NZFurs.Auth
             {
                 Log.Information("Building web host");
                 var host = CreateWebHostBuilder(args).Build();
+
+                Log.Information("Ensure database migrations are applied");
+                using (var scope = host.Services.CreateScope())
+                {
+                    using (var context = scope.ServiceProvider.GetService<IConfigurationDbContext>() as DbContext)
+                        await context.Database.MigrateAsync();
+                    using (var context = scope.ServiceProvider.GetService<IPersistedGrantDbContext>() as DbContext)
+                        await context.Database.MigrateAsync();
+                    using(var context = scope.ServiceProvider.GetService<ApplicationDbContext>())
+                        await context.Database.MigrateAsync();
+                }
 
                 Log.Information("Checking for seed data");
                 await SeedData.EnsureSeedDataAsync(host.Services);
