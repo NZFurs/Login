@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net.Security;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
@@ -249,7 +251,7 @@ namespace NZFurs.Auth
             });
         }
 
-        private void ConfigureEfProvider(DbContextOptionsBuilder options)
+        private void ConfigureEfProvider(DbContextOptionsBuilder builder)
         {
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 
@@ -274,7 +276,13 @@ namespace NZFurs.Auth
                                 : SslMode.Prefer,
                         }.ToString();
 
-                    options.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(migrationsAssembly));
+                    builder.UseNpgsql(
+                        connectionString, 
+                        options =>
+                        {
+                            options.MigrationsAssembly(migrationsAssembly);
+                            options.RemoteCertificateValidationCallback(PostgresqlRemoteCertificateValidation);
+                        });
 
                     break;
                 case "oracle":
@@ -294,9 +302,15 @@ namespace NZFurs.Auth
                             Configuration.GetValue("Paths:Database", "data/database"),
                             Configuration.GetValue("Data:Database:Filename", "data.db"))
                     };
-                    options.UseSqlite(connectionStringBuilder.ToString());
+                    builder.UseSqlite(connectionStringBuilder.ToString());
                     break;
             }
+        }
+
+        private bool PostgresqlRemoteCertificateValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            var x509certificate2 = new X509Certificate2(certificate);
+            return certificate.GetCertHashString(HashAlgorithmName.SHA256) == Configuration.GetValue<string>("Data:Database:RemoteCertificateSha256");
         }
     }
 }
