@@ -96,6 +96,7 @@ namespace NZFurs.Auth
                 .UseKestrel((hostContext, options) =>
                 {
                     options.AddServerHeader = false;
+                    options.Configure(hostContext.Configuration.GetSection("HttpServer"));
                     options.ConfigureHttpsDefaults(h =>
                     {
                         h.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
