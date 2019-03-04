@@ -186,7 +186,9 @@ namespace NZFurs.Auth
             services.AddHttpsRedirection(options =>
             {
                 options.RedirectStatusCode = StatusCodes.Status301MovedPermanently;
-                options.HttpsPort = 5001;
+                options.HttpsPort = Environment.IsProduction()
+                    ? 443
+                    : 5001;
             });
             #endregion
         }
