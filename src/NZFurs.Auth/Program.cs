@@ -18,6 +18,9 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using Microsoft.Azure.KeyVault.Models;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace NZFurs.Auth
 {
@@ -110,7 +113,9 @@ namespace NZFurs.Auth
                                 var keyVaultClient = GetKeyVaultClient(hostContext.Configuration.GetConnectionString("AzureServiceTokenProvider"));
                                 try
                                 {
-                                    var pfxBase64String = _keyVaultClient.GetSecretAsync($"https://{hostContext.Configuration["Azure:KeyVault:KeyVault"]}.vault.azure.net/", hostname).Result.Value;
+                                    var keyVaultHostName = string.Join("-",hostname.Split('.').Reverse()).ToLowerInvariant();
+                                    //keyVaultHostName = $"{keyVaultHostName}-{BitConverter.ToString(HMAC.Create("HMACSHA256").ComputeHash(Encoding.UTF8.GetBytes(keyVaultHostName))).Replace("-", string.Empty)}".ToLowerInvariant();
+                                    var pfxBase64String = _keyVaultClient.GetSecretAsync($"https://{hostContext.Configuration["Azure:KeyVault:KeyVault"]}.vault.azure.net/", keyVaultHostName).Result.Value;
                                     _certificates[hostname] = new X509Certificate2(Convert.FromBase64String(pfxBase64String));
                                 }
                                 catch(AggregateException aex)
