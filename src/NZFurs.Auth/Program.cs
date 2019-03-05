@@ -17,6 +17,7 @@ using NZFurs.Auth.Data;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Microsoft.Azure.KeyVault.Models;
 
 namespace NZFurs.Auth
 {
@@ -107,8 +108,22 @@ namespace NZFurs.Auth
                             if (!_certificates.ContainsKey(hostname))
                             {
                                 var keyVaultClient = GetKeyVaultClient(hostContext.Configuration.GetConnectionString("AzureServiceTokenProvider"));
-                                var pfxBase64String = _keyVaultClient.GetSecretAsync($"https://{hostContext.Configuration["Azure:KeyVault:KeyVault"]}.vault.azure.net/", hostname).GetAwaiter().GetResult().Value;
-                                _certificates[hostname] = new X509Certificate2(Convert.FromBase64String(pfxBase64String));
+                                try
+                                {
+                                    var pfxBase64String = _keyVaultClient.GetSecretAsync($"https://{hostContext.Configuration["Azure:KeyVault:KeyVault"]}.vault.azure.net/", hostname).Result.Value;
+                                    _certificates[hostname] = new X509Certificate2(Convert.FromBase64String(pfxBase64String));
+                                }
+                                catch(AggregateException aex)
+                                {
+
+                                    foreach(var exception in aex.InnerExceptions)
+                                    {
+                                        if(exception is KeyVaultErrorException keyVaultError)
+                                            Log.Fatal(keyVaultError, $"{keyVaultError.Message}.\n{keyVaultError.Response.Content}");
+                                        else
+                                            Log.Fatal(exception, "Failed to get secret from keyvault");
+                                    }
+                                }
                             }
 
                             return _certificates[hostname];
