@@ -129,8 +129,7 @@ namespace NZFurs.Auth.Services
             var sigOperationResponse = await _keyVaultClient.SignAsync(jwt.Header.Kid, jwt.Header.Alg, rawDataBytes.Sha256(), cancellationToken);
 
             var rawSignatureBytes = sigOperationResponse.Result;
-
-            return jwt.EncodedHeader + "." + jwt.EncodedPayload + "." + Convert.ToBase64String(rawSignatureBytes);
+            return jwt.EncodedHeader + "." + jwt.EncodedPayload + "." + Base64UrlEncoder.Encode(rawSignatureBytes);
         }
 
         private async Task<string> GetAzureActiveDirectoryToken(string authority, string resource, string scope)
