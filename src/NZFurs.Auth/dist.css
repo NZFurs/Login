@@ -839,6 +839,10 @@ table {
   background-color: #ffebef;
 }
 
+.bg-nz-green-light {
+  background-color: #dff69f;
+}
+
 .hover\:bg-transparent:hover {
   background-color: transparent;
 }
@@ -1131,6 +1135,10 @@ table {
   background-color: #ffebef;
 }
 
+.hover\:bg-nz-green-light:hover {
+  background-color: #dff69f;
+}
+
 .focus\:bg-transparent:focus {
   background-color: transparent;
 }
@@ -1421,6 +1429,10 @@ table {
 
 .focus\:bg-pink-lightest:focus {
   background-color: #ffebef;
+}
+
+.focus\:bg-nz-green-light:focus {
+  background-color: #dff69f;
 }
 
 .bg-bottom {
@@ -1787,6 +1799,10 @@ table {
   border-color: #ffebef;
 }
 
+.border-nz-green-light {
+  border-color: #dff69f;
+}
+
 .hover\:border-transparent:hover {
   border-color: transparent;
 }
@@ -2079,6 +2095,10 @@ table {
   border-color: #ffebef;
 }
 
+.hover\:border-nz-green-light:hover {
+  border-color: #dff69f;
+}
+
 .focus\:border-transparent:focus {
   border-color: transparent;
 }
@@ -2369,6 +2389,10 @@ table {
 
 .focus\:border-pink-lightest:focus {
   border-color: #ffebef;
+}
+
+.focus\:border-nz-green-light:focus {
+  border-color: #dff69f;
 }
 
 .rounded-none {
@@ -5126,6 +5150,10 @@ table {
   color: #ffebef;
 }
 
+.text-nz-green-light {
+  color: #dff69f;
+}
+
 .hover\:text-transparent:hover {
   color: transparent;
 }
@@ -5418,6 +5446,10 @@ table {
   color: #ffebef;
 }
 
+.hover\:text-nz-green-light:hover {
+  color: #dff69f;
+}
+
 .focus\:text-transparent:focus {
   color: transparent;
 }
@@ -5708,6 +5740,10 @@ table {
 
 .focus\:text-pink-lightest:focus {
   color: #ffebef;
+}
+
+.focus\:text-nz-green-light:focus {
+  color: #dff69f;
 }
 
 .text-xs {
@@ -6436,6 +6472,10 @@ table {
     background-color: #ffebef;
   }
 
+  .sm\:bg-nz-green-light {
+    background-color: #dff69f;
+  }
+
   .sm\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -6728,6 +6768,10 @@ table {
     background-color: #ffebef;
   }
 
+  .sm\:hover\:bg-nz-green-light:hover {
+    background-color: #dff69f;
+  }
+
   .sm\:focus\:bg-transparent:focus {
     background-color: transparent;
   }
@@ -7018,6 +7062,10 @@ table {
 
   .sm\:focus\:bg-pink-lightest:focus {
     background-color: #ffebef;
+  }
+
+  .sm\:focus\:bg-nz-green-light:focus {
+    background-color: #dff69f;
   }
 
   .sm\:bg-bottom {
@@ -7376,6 +7424,10 @@ table {
     border-color: #ffebef;
   }
 
+  .sm\:border-nz-green-light {
+    border-color: #dff69f;
+  }
+
   .sm\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -7668,6 +7720,10 @@ table {
     border-color: #ffebef;
   }
 
+  .sm\:hover\:border-nz-green-light:hover {
+    border-color: #dff69f;
+  }
+
   .sm\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -7958,6 +8014,10 @@ table {
 
   .sm\:focus\:border-pink-lightest:focus {
     border-color: #ffebef;
+  }
+
+  .sm\:focus\:border-nz-green-light:focus {
+    border-color: #dff69f;
   }
 
   .sm\:rounded-none {
@@ -10699,6 +10759,10 @@ table {
     color: #ffebef;
   }
 
+  .sm\:text-nz-green-light {
+    color: #dff69f;
+  }
+
   .sm\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -10991,6 +11055,10 @@ table {
     color: #ffebef;
   }
 
+  .sm\:hover\:text-nz-green-light:hover {
+    color: #dff69f;
+  }
+
   .sm\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -11281,6 +11349,10 @@ table {
 
   .sm\:focus\:text-pink-lightest:focus {
     color: #ffebef;
+  }
+
+  .sm\:focus\:text-nz-green-light:focus {
+    color: #dff69f;
   }
 
   .sm\:text-xs {
@@ -12010,6 +12082,10 @@ table {
     background-color: #ffebef;
   }
 
+  .md\:bg-nz-green-light {
+    background-color: #dff69f;
+  }
+
   .md\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -12302,6 +12378,10 @@ table {
     background-color: #ffebef;
   }
 
+  .md\:hover\:bg-nz-green-light:hover {
+    background-color: #dff69f;
+  }
+
   .md\:focus\:bg-transparent:focus {
     background-color: transparent;
   }
@@ -12592,6 +12672,10 @@ table {
 
   .md\:focus\:bg-pink-lightest:focus {
     background-color: #ffebef;
+  }
+
+  .md\:focus\:bg-nz-green-light:focus {
+    background-color: #dff69f;
   }
 
   .md\:bg-bottom {
@@ -12950,6 +13034,10 @@ table {
     border-color: #ffebef;
   }
 
+  .md\:border-nz-green-light {
+    border-color: #dff69f;
+  }
+
   .md\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -13242,6 +13330,10 @@ table {
     border-color: #ffebef;
   }
 
+  .md\:hover\:border-nz-green-light:hover {
+    border-color: #dff69f;
+  }
+
   .md\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -13532,6 +13624,10 @@ table {
 
   .md\:focus\:border-pink-lightest:focus {
     border-color: #ffebef;
+  }
+
+  .md\:focus\:border-nz-green-light:focus {
+    border-color: #dff69f;
   }
 
   .md\:rounded-none {
@@ -16273,6 +16369,10 @@ table {
     color: #ffebef;
   }
 
+  .md\:text-nz-green-light {
+    color: #dff69f;
+  }
+
   .md\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -16565,6 +16665,10 @@ table {
     color: #ffebef;
   }
 
+  .md\:hover\:text-nz-green-light:hover {
+    color: #dff69f;
+  }
+
   .md\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -16855,6 +16959,10 @@ table {
 
   .md\:focus\:text-pink-lightest:focus {
     color: #ffebef;
+  }
+
+  .md\:focus\:text-nz-green-light:focus {
+    color: #dff69f;
   }
 
   .md\:text-xs {
@@ -17584,6 +17692,10 @@ table {
     background-color: #ffebef;
   }
 
+  .lg\:bg-nz-green-light {
+    background-color: #dff69f;
+  }
+
   .lg\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -17876,6 +17988,10 @@ table {
     background-color: #ffebef;
   }
 
+  .lg\:hover\:bg-nz-green-light:hover {
+    background-color: #dff69f;
+  }
+
   .lg\:focus\:bg-transparent:focus {
     background-color: transparent;
   }
@@ -18166,6 +18282,10 @@ table {
 
   .lg\:focus\:bg-pink-lightest:focus {
     background-color: #ffebef;
+  }
+
+  .lg\:focus\:bg-nz-green-light:focus {
+    background-color: #dff69f;
   }
 
   .lg\:bg-bottom {
@@ -18524,6 +18644,10 @@ table {
     border-color: #ffebef;
   }
 
+  .lg\:border-nz-green-light {
+    border-color: #dff69f;
+  }
+
   .lg\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -18816,6 +18940,10 @@ table {
     border-color: #ffebef;
   }
 
+  .lg\:hover\:border-nz-green-light:hover {
+    border-color: #dff69f;
+  }
+
   .lg\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -19106,6 +19234,10 @@ table {
 
   .lg\:focus\:border-pink-lightest:focus {
     border-color: #ffebef;
+  }
+
+  .lg\:focus\:border-nz-green-light:focus {
+    border-color: #dff69f;
   }
 
   .lg\:rounded-none {
@@ -21847,6 +21979,10 @@ table {
     color: #ffebef;
   }
 
+  .lg\:text-nz-green-light {
+    color: #dff69f;
+  }
+
   .lg\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -22139,6 +22275,10 @@ table {
     color: #ffebef;
   }
 
+  .lg\:hover\:text-nz-green-light:hover {
+    color: #dff69f;
+  }
+
   .lg\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -22429,6 +22569,10 @@ table {
 
   .lg\:focus\:text-pink-lightest:focus {
     color: #ffebef;
+  }
+
+  .lg\:focus\:text-nz-green-light:focus {
+    color: #dff69f;
   }
 
   .lg\:text-xs {
@@ -23158,6 +23302,10 @@ table {
     background-color: #ffebef;
   }
 
+  .xl\:bg-nz-green-light {
+    background-color: #dff69f;
+  }
+
   .xl\:hover\:bg-transparent:hover {
     background-color: transparent;
   }
@@ -23450,6 +23598,10 @@ table {
     background-color: #ffebef;
   }
 
+  .xl\:hover\:bg-nz-green-light:hover {
+    background-color: #dff69f;
+  }
+
   .xl\:focus\:bg-transparent:focus {
     background-color: transparent;
   }
@@ -23740,6 +23892,10 @@ table {
 
   .xl\:focus\:bg-pink-lightest:focus {
     background-color: #ffebef;
+  }
+
+  .xl\:focus\:bg-nz-green-light:focus {
+    background-color: #dff69f;
   }
 
   .xl\:bg-bottom {
@@ -24098,6 +24254,10 @@ table {
     border-color: #ffebef;
   }
 
+  .xl\:border-nz-green-light {
+    border-color: #dff69f;
+  }
+
   .xl\:hover\:border-transparent:hover {
     border-color: transparent;
   }
@@ -24390,6 +24550,10 @@ table {
     border-color: #ffebef;
   }
 
+  .xl\:hover\:border-nz-green-light:hover {
+    border-color: #dff69f;
+  }
+
   .xl\:focus\:border-transparent:focus {
     border-color: transparent;
   }
@@ -24680,6 +24844,10 @@ table {
 
   .xl\:focus\:border-pink-lightest:focus {
     border-color: #ffebef;
+  }
+
+  .xl\:focus\:border-nz-green-light:focus {
+    border-color: #dff69f;
   }
 
   .xl\:rounded-none {
@@ -27421,6 +27589,10 @@ table {
     color: #ffebef;
   }
 
+  .xl\:text-nz-green-light {
+    color: #dff69f;
+  }
+
   .xl\:hover\:text-transparent:hover {
     color: transparent;
   }
@@ -27713,6 +27885,10 @@ table {
     color: #ffebef;
   }
 
+  .xl\:hover\:text-nz-green-light:hover {
+    color: #dff69f;
+  }
+
   .xl\:focus\:text-transparent:focus {
     color: transparent;
   }
@@ -28003,6 +28179,10 @@ table {
 
   .xl\:focus\:text-pink-lightest:focus {
     color: #ffebef;
+  }
+
+  .xl\:focus\:text-nz-green-light:focus {
+    color: #dff69f;
   }
 
   .xl\:text-xs {
