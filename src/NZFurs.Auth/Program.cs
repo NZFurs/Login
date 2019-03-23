@@ -3,17 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using NZFurs.Auth.Data;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Microsoft.Azure.KeyVault.Models;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace NZFurs.Auth
 {
@@ -35,6 +42,17 @@ namespace NZFurs.Auth
             {
                 Log.Information("Building web host");
                 var host = CreateWebHostBuilder(args).Build();
+
+                Log.Information("Ensure database migrations are applied");
+                using (var scope = host.Services.CreateScope())
+                {
+                    using (var context = scope.ServiceProvider.GetService<IConfigurationDbContext>() as DbContext)
+                        await context.Database.MigrateAsync();
+                    using (var context = scope.ServiceProvider.GetService<IPersistedGrantDbContext>() as DbContext)
+                        await context.Database.MigrateAsync();
+                    using(var context = scope.ServiceProvider.GetService<ApplicationDbContext>())
+                        await context.Database.MigrateAsync();
+                }
 
                 Log.Information("Checking for seed data");
                 await SeedData.EnsureSeedDataAsync(host.Services);
@@ -82,6 +100,7 @@ namespace NZFurs.Auth
                 .UseKestrel((hostContext, options) =>
                 {
                     options.AddServerHeader = false;
+                    options.Configure(hostContext.Configuration.GetSection("HttpServer"));
                     options.ConfigureHttpsDefaults(h =>
                     {
                         h.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
@@ -92,8 +111,24 @@ namespace NZFurs.Auth
                             if (!_certificates.ContainsKey(hostname))
                             {
                                 var keyVaultClient = GetKeyVaultClient(hostContext.Configuration.GetConnectionString("AzureServiceTokenProvider"));
-                                var pfxBase64String = _keyVaultClient.GetSecretAsync($"https://{hostContext.Configuration["Azure:KeyVault:KeyVault"]}.vault.azure.net/", hostname).GetAwaiter().GetResult().Value;
-                                _certificates[hostname] = new X509Certificate2(Convert.FromBase64String(pfxBase64String));
+                                try
+                                {
+                                    var keyVaultHostName = string.Join("-",hostname.Split('.').Reverse()).ToLowerInvariant();
+                                    //keyVaultHostName = $"{keyVaultHostName}-{BitConverter.ToString(HMAC.Create("HMACSHA256").ComputeHash(Encoding.UTF8.GetBytes(keyVaultHostName))).Replace("-", string.Empty)}".ToLowerInvariant();
+                                    var pfxBase64String = _keyVaultClient.GetSecretAsync($"https://{hostContext.Configuration["Azure:KeyVault:KeyVault"]}.vault.azure.net/", keyVaultHostName).Result.Value;
+                                    _certificates[hostname] = new X509Certificate2(Convert.FromBase64String(pfxBase64String));
+                                }
+                                catch(AggregateException aex)
+                                {
+
+                                    foreach(var exception in aex.InnerExceptions)
+                                    {
+                                        if(exception is KeyVaultErrorException keyVaultError)
+                                            Log.Fatal(keyVaultError, $"{keyVaultError.Message}.\n{keyVaultError.Response.Content}");
+                                        else
+                                            Log.Fatal(exception, "Failed to get secret from keyvault");
+                                    }
+                                }
                             }
 
                             return _certificates[hostname];

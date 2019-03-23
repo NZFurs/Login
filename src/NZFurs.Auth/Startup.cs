@@ -6,6 +6,7 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,11 +34,13 @@ namespace NZFurs.Auth
     {
         public IConfiguration Configuration { get; }
         public IHostingEnvironment Environment { get; }
+        public ILogger Logger { get; }
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration configuration, IHostingEnvironment environment, ILogger<Startup> logger)
         {
             Configuration = configuration;
             Environment = environment;
+            Logger = logger;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -183,7 +186,9 @@ namespace NZFurs.Auth
             services.AddHttpsRedirection(options =>
             {
                 options.RedirectStatusCode = StatusCodes.Status301MovedPermanently;
-                options.HttpsPort = 5001;
+                options.HttpsPort = Environment.IsProduction()
+                    ? 443
+                    : 5001;
             });
             #endregion
         }
@@ -309,8 +314,43 @@ namespace NZFurs.Auth
 
         private bool PostgresqlRemoteCertificateValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            var x509certificate2 = new X509Certificate2(certificate);
-            return certificate.GetCertHashString(HashAlgorithmName.SHA256) == Configuration.GetValue<string>("Data:Database:RemoteCertificateSha256");
+            var caFingerprint = Configuration.GetValue("Data:Database:RemoteCertificateSha256", string.Empty);
+            // Perform default validation if a fingerprint was not provided.
+            if (string.IsNullOrEmpty(caFingerprint))
+                return new X509Certificate2(certificate).Verify();
+
+            bool hasRecognisedCA = false;
+            var certsLog = new StringBuilder();
+            // Check to see if any CA matches a stored fingerprint
+            foreach (var chainElement in chain.ChainElements)
+            {
+                certsLog.AppendLine($"- Certificate {chainElement.Certificate.SubjectName}: {chainElement.Certificate.GetCertHashString(HashAlgorithmName.SHA256)}");
+                if (chainElement.Certificate.GetCertHashString(HashAlgorithmName.SHA256).Equals(caFingerprint, StringComparison.OrdinalIgnoreCase))
+                {
+                    hasRecognisedCA = true;
+                    break;
+                }
+            }
+
+            if (!hasRecognisedCA)
+            {
+                certsLog.Insert(0, $"Could not verify certificate. did not match. Expecting {caFingerprint}.\n");
+                Logger.LogCritical(certsLog.ToString());
+                return false;
+            }
+            else if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors)
+            {
+                // Clear ssl policy error as we now trust the certificate chain.
+                sslPolicyErrors = SslPolicyErrors.None;
+            }
+
+            if (sslPolicyErrors != SslPolicyErrors.None)
+            {
+                Logger.LogCritical($"certificate failed validation: {sslPolicyErrors}");
+                return false;
+            }
+
+            return true;
         }
     }
 }
