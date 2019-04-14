@@ -7,7 +7,7 @@
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_LOGIN");
 }
 
-<h2 class="font-hairline mb-6 text-center">@ViewData["Title"]</h2>
+<h2 class="text-2xl m-6 text-nz-green-light text-center">@ViewData["Title"]</h2>
 <div class="container mx-auto h-full flex justify-center items-center">
     <div class="w-1/3">
         <section>
@@ -43,16 +43,20 @@
                     @if (Model.ExternalProviders.Any())
                     {
                     <p>
+                        <ul class="list-reset flex">
                             @foreach (var provider in Model.ExternalProviders)
                             {
-                                <a 
-                                    class=" mr-4 mt-10 bg-yellow hover:bg-yellow-darker text-green-darkest hover:text-white font-bold py-2 px-4 rounded no-underline"
-                                    asp-action="ExternalLogin"
-                                    asp-route-provider="@provider.AuthenticationScheme"
-                                    asp-route-returnUrl="@Model.ReturnUrl">
-                                    @provider.DisplayName
-                                </a>
+                                <li class="mr-3">
+                                    <a 
+                                        class=" mr-4 mt-10 bg-yellow hover:bg-yellow-darker text-green-darkest hover:text-white font-bold py-2 px-4 rounded no-underline"
+                                        asp-action="ExternalLogin"
+                                        asp-route-provider="@provider.AuthenticationScheme"
+                                        asp-route-returnUrl="@Model.ReturnUrl">
+                                        @provider.DisplayName
+                                    </a>
+                                </li>
                             }
+                        </ul>
                     </p>
                     }
                 </form>
