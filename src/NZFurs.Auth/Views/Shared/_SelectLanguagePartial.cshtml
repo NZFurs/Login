@@ -30,7 +30,7 @@
         <label class="form-label paddingright5px" >@SharedLocalizer.GetLocalizedHtmlString("LANGUAGE"): </label>
         <div class="input-group">
 
-            <select class="custom-select" name="culture" asp-for="@requestCulture.RequestCulture.UICulture.Name" asp-items="cultureItems"></select>
+            <select class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline" name="culture" asp-for="@requestCulture.RequestCulture.UICulture.Name" asp-items="cultureItems"></select>
             <input type="hidden" name="returnUrlForLanguageSwitch" id="returnUrlForLanguageSwitch" value="@url"/>
             <div class="input-group-append">
                 <button type="submit" class="btn btn-outline-secondary">@SharedLocalizer.GetLocalizedHtmlString("SAVE")</button>
