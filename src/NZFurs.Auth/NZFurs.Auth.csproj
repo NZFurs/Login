@@ -9,7 +9,7 @@
     <PackageReference Include="InFurSecDen.Utils.ConfigurationValidator" Version="1.0.0-alpha1" />
     <PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
+    <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
     <PackageReference Include="IdentityServer4" Version="2.3.2" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.0">
