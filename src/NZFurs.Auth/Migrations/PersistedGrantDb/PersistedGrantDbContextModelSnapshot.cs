@@ -14,7 +14,7 @@ namespace NZFurs.Auth.Migrations.PersistedGrantDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
+                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
                 {
@@ -47,6 +47,8 @@ namespace NZFurs.Auth.Migrations.PersistedGrantDb
                     b.HasIndex("DeviceCode")
                         .IsUnique();
 
+                    b.HasIndex("Expiration");
+
                     b.ToTable("DeviceCodes");
                 });
 
@@ -76,7 +78,7 @@ namespace NZFurs.Auth.Migrations.PersistedGrantDb
 
                     b.HasKey("Key");
 
-                    b.HasIndex("SubjectId", "ClientId", "Type");
+                    b.HasIndex("SubjectId", "ClientId", "Type", "Expiration");
 
                     b.ToTable("PersistedGrants");
                 });

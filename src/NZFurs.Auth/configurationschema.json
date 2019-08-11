@@ -41,7 +41,10 @@
   "Azure:KeyVault:KeyVault": {
     "required": true
   },
-  "ConnectionStrings:DefaultConnection": {
+  "ConnectionStrings:AzureServiceTokenProvider": {
+    "required": true
+  },
+  "Data:Database:Provider": {
     "required": true
   },
   "IdentityServer4:PublicOrigin": {

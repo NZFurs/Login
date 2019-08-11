@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net.Security;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,11 +14,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using NZFurs.Auth.Data;
 using NZFurs.Auth.Filters;
 using NZFurs.Auth.Models;
@@ -29,11 +34,13 @@ namespace NZFurs.Auth
     {
         public IConfiguration Configuration { get; }
         public IHostingEnvironment Environment { get; }
+        public ILogger Logger { get; }
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration configuration, IHostingEnvironment environment, ILogger<Startup> logger)
         {
             Configuration = configuration;
             Environment = environment;
+            Logger = logger;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -50,10 +57,7 @@ namespace NZFurs.Auth
             #endregion
 
             #region DbContext
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
-            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
-
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
+            services.AddDbContext<ApplicationDbContext>(ConfigureEfProvider);
             #endregion
 
             #region Localisation
@@ -126,7 +130,8 @@ namespace NZFurs.Auth
             #endregion
 
             #region Application Services
-            services.AddTransient<IEmailSender, SendGridEmailSender>();
+            //services.AddTransient<IEmailSender, SendGridEmailSender>();
+            services.AddTransient<IEmailSender, FakeEmailService>();
             services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
             services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
             services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();
@@ -156,22 +161,35 @@ namespace NZFurs.Auth
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddConfigurationStore(options =>
                 {
-                    options.ConfigureDbContext = b =>
-                        b.UseSqlite(connectionString,
-                            sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = ConfigureEfProvider;
                 })
                 // this adds the operational data from DB (codes, tokens, consents)
                 .AddOperationalStore(options =>
                 {
-                    options.ConfigureDbContext = b =>
-                        b.UseSqlite(connectionString,
-                            sql => sql.MigrationsAssembly(migrationsAssembly));
+                    options.ConfigureDbContext = ConfigureEfProvider;
 
                     // this enables automatic token cleanup. this is optional.
                     options.EnableTokenCleanup = true;
                     // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
                 })
                 .AddProfileService<IdentityWithAdditionalClaimsProfileService>();
+            #endregion
+
+            #region HTTPS/HSTS
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(365);
+            });
+
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status301MovedPermanently;
+                options.HttpsPort = Environment.IsProduction()
+                    ? 443
+                    : 5001;
+            });
             #endregion
         }
 
@@ -185,9 +203,11 @@ namespace NZFurs.Auth
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
             }
 
-            app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains());
+            app.UseHttpsRedirection();
+
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(opts => opts.NoReferrer());
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
@@ -234,6 +254,107 @@ namespace NZFurs.Auth
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void ConfigureEfProvider(DbContextOptionsBuilder builder)
+        {
+            var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+
+            switch (Configuration.GetValue("Data:Database:Provider", string.Empty).ToLowerInvariant())
+            {
+                case "mysql":
+                case "mariadb":
+                    throw new NotSupportedException(@"MySQL/MariaDB is not currently supported.");
+                case "postgres":
+                case "postgresql":
+                    var connectionString =
+                        Configuration.GetValue<string>("Data:Database:ConnectionString", null)
+                        ?? new NpgsqlConnectionStringBuilder
+                        {
+                            Database = Configuration.GetValue<string>("Data:Database:Database"),
+                            Host = Configuration.GetValue<string>("Data:Database:Host"),
+                            Port = Configuration.GetValue("Data:Database:Port", 5432),
+                            Username = Configuration.GetValue("Data:Database:Username", string.Empty),
+                            Password = Configuration.GetValue("Data:Database:Password", string.Empty),
+                            SslMode = Configuration.GetValue<bool>("Data:Database:RequireSSL", false)
+                                ? SslMode.Require
+                                : SslMode.Prefer,
+                        }.ToString();
+
+                    builder.UseNpgsql(
+                        connectionString, 
+                        options =>
+                        {
+                            options.MigrationsAssembly(migrationsAssembly);
+                            options.RemoteCertificateValidationCallback(PostgresqlRemoteCertificateValidation);
+                        });
+
+                    break;
+                case "oracle":
+                    throw new NotSupportedException(@"Ha, no. Oracle can fuck right off. https://web.archive.org/web/20150811052336/https://blogs.oracle.com/maryanndavidson/entry/no_you_really_can_t");
+                case "sqlserver":
+                    throw new NotSupportedException(@"Microsoft SQL Server is not currently supported. This may come in a future release because it's easy to implement, but it may be buggy and won't be officially maintained.");
+                case "sqlite":
+                default:
+                    var databasePath = new DirectoryInfo(Path.Combine("data", "database"));
+                    if (!databasePath.Exists)
+                        databasePath.Create();
+
+                    var connectionStringBuilder = new SqliteConnectionStringBuilder
+                    {
+                        DataSource = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            Configuration.GetValue("Paths:Database", "data/database"),
+                            Configuration.GetValue("Data:Database:Filename", "data.db"))
+                    };
+                    builder.UseSqlite(connectionStringBuilder.ToString(),
+                        options =>
+                        {
+                            options.MigrationsAssembly(migrationsAssembly);
+                        });
+                    break;
+            }
+        }
+
+        private bool PostgresqlRemoteCertificateValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            var caFingerprint = Configuration.GetValue("Data:Database:RemoteCertificateSha256", string.Empty);
+            // Perform default validation if a fingerprint was not provided.
+            if (string.IsNullOrEmpty(caFingerprint))
+                return new X509Certificate2(certificate).Verify();
+
+            bool hasRecognisedCA = false;
+            var certsLog = new StringBuilder();
+            // Check to see if any CA matches a stored fingerprint
+            foreach (var chainElement in chain.ChainElements)
+            {
+                certsLog.AppendLine($"- Certificate {chainElement.Certificate.SubjectName}: {chainElement.Certificate.GetCertHashString(HashAlgorithmName.SHA256)}");
+                if (chainElement.Certificate.GetCertHashString(HashAlgorithmName.SHA256).Equals(caFingerprint, StringComparison.OrdinalIgnoreCase))
+                {
+                    hasRecognisedCA = true;
+                    break;
+                }
+            }
+
+            if (!hasRecognisedCA)
+            {
+                certsLog.Insert(0, $"Could not verify certificate. did not match. Expecting {caFingerprint}.\n");
+                Logger.LogCritical(certsLog.ToString());
+                return false;
+            }
+            else if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors)
+            {
+                // Clear ssl policy error as we now trust the certificate chain.
+                sslPolicyErrors = SslPolicyErrors.None;
+            }
+
+            if (sslPolicyErrors != SslPolicyErrors.None)
+            {
+                Logger.LogCritical($"certificate failed validation: {sslPolicyErrors}");
+                return false;
+            }
+
+            return true;
         }
     }
 }
