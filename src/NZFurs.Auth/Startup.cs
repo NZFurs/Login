@@ -307,7 +307,11 @@ namespace NZFurs.Auth
                             Configuration.GetValue("Paths:Database", "data/database"),
                             Configuration.GetValue("Data:Database:Filename", "data.db"))
                     };
-                    builder.UseSqlite(connectionStringBuilder.ToString());
+                    builder.UseSqlite(connectionStringBuilder.ToString(),
+                        options =>
+                        {
+                            options.MigrationsAssembly(migrationsAssembly);
+                        });
                     break;
             }
         }
