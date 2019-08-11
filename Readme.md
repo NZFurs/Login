@@ -1,6 +1,10 @@
 # NZFurs Login Server ![License](https://img.shields.io/github/license/NZFurs/Login.svg)
 
-## Code ![GitHub last commit](https://img.shields.io/github/last-commit/nzfurs/login.svg) ![GitHub issues](https://img.shields.io/github/issues/nzfurs/login.svg)
+## Contribute ![GitHub last commit](https://img.shields.io/github/last-commit/nzfurs/login.svg) ![GitHub issues](https://img.shields.io/github/issues/nzfurs/login.svg)
+
+### Code of Conduct [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](code-of-conduct.md)
+
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
 ## Build [![Build Status](https://dev.azure.com/nzfurs/Login/_apis/build/status/develop)](https://dev.azure.com/nzfurs/Login/_build/latest?definitionId=2)
 
