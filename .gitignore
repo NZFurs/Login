@@ -1,4 +1,4 @@
-/src/NzFurs.Auth/Data/Database/sqlite.db
+src/NZFurs.Auth/Data/Database/data.db
 /*.env
 
 # Created by https://www.gitignore.io/api/sass,rider,linux,macos,csharp,windows,aspnetcore,visualstudio,visualstudiocode
