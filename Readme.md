@@ -2,15 +2,31 @@
 
 ## Code ![GitHub last commit](https://img.shields.io/github/last-commit/nzfurs/login.svg) ![GitHub issues](https://img.shields.io/github/issues/nzfurs/login.svg)
 
+### Setting up a development environment:
+
+1. Install the lastest [.NET Core SDK](https://dotnet.microsoft.com/download)
+2. `git clone https://github.com/NZFurs/Login.git`
+3. Initialise the SQLite database:
+    * `dotnet ef database update --project src/NZFurs.Auth/ --context ApplicationDbContext`
+    * `dotnet ef database update --project src/NZFurs.Auth/ --context ConfigurationDbContext`
+    * `dotnet ef database update --project src/NZFurs.Auth/ --context PersistedGrantDbContext`
+4. Connect to Azure (JWT signing operations via Azure Key Vault)
+    * Install the latest [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+    * `az login`
+    * Either:
+        * You have been given access to the Development Key Vault, in which case you don't need to do anything
+        * Create a key vault in Azure, add a valid RSA 2048 key to it, then update `Azure:KeyVault` in `appsettings.Development.json` to point to it
+
 ## Build [![Build Status](https://dev.azure.com/nzfurs/Login/_apis/build/status/develop)](https://dev.azure.com/nzfurs/Login/_build/latest?definitionId=2)
 
-# Build using Docker
+### Build using Docker
 
 1. Ensure you have the latest .NET Core SDK and Docker installed
 2. Run the following Docker command:
 
 ```bash
 docker build . -t nzfurs/login:development
+```
 
 ## Docker ![Docker Pulls](https://img.shields.io/docker/pulls/nzfurs/login.svg)
 
