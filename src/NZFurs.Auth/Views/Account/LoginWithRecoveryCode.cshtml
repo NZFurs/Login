@@ -5,7 +5,7 @@
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_RECOVERY_CODE_VERIFICATION");
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="text-2xl m-6 text-nz-green-light text-center">@ViewData["Title"]</h2>
 <hr />
 <p>
     @SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_RECOVERY_CODE_VERIFICATION_TEXT")
@@ -13,11 +13,11 @@
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-red"></div>
             <div class="form-group">
                 <label asp-for="RecoveryCode">@SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_RECOVERY_CODE")</label>
                 <input asp-for="RecoveryCode" class="form-control" autocomplete="off" />
-                <span asp-validation-for="RecoveryCode" class="text-danger"></span>
+                <span asp-validation-for="RecoveryCode" class="text-red"></span>
             </div>
             <button type="submit" class="btn btn-primary">@SharedLocalizer.GetLocalizedHtmlString("ACCOUNT_LOGIN")</button>
         </form>

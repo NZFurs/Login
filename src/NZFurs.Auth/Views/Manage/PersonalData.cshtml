@@ -6,19 +6,19 @@
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h4>@ViewData["Title"]</h4>
+<h4 class="text-l mt-10 mb-4  text-nz-green-light text-center">@ViewData["Title"]</h4>
 
-<div class="row">
-    <div class="col-md-6">
-        <p>@SharedLocalizer.GetLocalizedHtmlString("PERSONAL_DATA_INFO")</p>
-        <p>
+<div class="container mx-auto h-full flex justify-center items-center">
+    <div class="w-1/3">
+        <p class="mb-4">@SharedLocalizer.GetLocalizedHtmlString("PERSONAL_DATA_INFO")</p>
+        <p class="text-red">
             <strong>@SharedLocalizer.GetLocalizedHtmlString("PERSONAL_DATA_DELETEINFO")</strong>
         </p>
         <form asp-action="DownloadPersonalData" method="post" class="form-group">
-            <button class="btn btn-primary" type="submit">@SharedLocalizer.GetLocalizedHtmlString("DOWNLOAD")</button>
+            <button class="w-full mt-8 mb-8 bg-yellow hover:bg-yellow-darker text-green-darkest hover:text-white font-bold py-2 px-4 rounded" type="submit">@SharedLocalizer.GetLocalizedHtmlString("DOWNLOAD")</button>
         </form>
-        <p>
-            <a asp-action="DeletePersonalData" class="btn btn-primary">@SharedLocalizer.GetLocalizedHtmlString("DELETE")</a>
+        <p class="text-center">
+            <a asp-action="DeletePersonalData" class="no-underline center bg-red hover:bg-red-darker text-white font-bold py-2 px-4 rounded">@SharedLocalizer.GetLocalizedHtmlString("DELETE")</a>
         </p>
     </div>
 </div>
