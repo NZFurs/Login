@@ -49,5 +49,8 @@
   },
   "IdentityServer4:PublicOrigin": {
     "required": true
+  },
+  "Secrets:ClientSecretHmacKey": {
+    "required": true
   }
 }

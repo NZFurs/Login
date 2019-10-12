@@ -51,6 +51,10 @@ namespace NZFurs.Auth
             #region Options
             services.AddOptions();
             services.Configure<Argon2iPasswordHasherOptions>(Configuration.GetSection("Argon2i"));
+            services.Configure<Argon2iSharedSecretValidatorOptions>(options =>
+            {
+                options.ClientSecretHmacKey = Configuration.GetValue<byte[]>("Secrets:ClientSecretHmacKey");
+            });
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
             services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
