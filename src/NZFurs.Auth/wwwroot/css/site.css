@@ -11,7 +11,7 @@
 }
 
 /* Set widths on the form inputs since otherwise they're 100% wide */
-input,
+/* I've removed "input" from this as it's constrained by the parent div in most cases and looks weird on mobile --skooch */
 select,
 textarea {
     max-width: 280px;
