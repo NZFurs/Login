@@ -10,9 +10,9 @@ using Microsoft.Extensions.Options;
 
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using Konscious.Security.Cryptography;
 
 using NZFurs.Auth.Options;
+using NSec.Cryptography;
 
 namespace NZFurs.Auth.Services
 {
@@ -29,36 +29,36 @@ namespace NZFurs.Auth.Services
 
         public Task<SecretValidationResult> ValidateAsync(IEnumerable<Secret> secrets, ParsedSecret parsedSecret)
         {
-            if (parsedSecret.Type != "SharedArgon2i")
+            if (parsedSecret.Type != "SharedSecret")
             {
                 _logger.LogDebug("Hashed shared secret validator cannot process {type}", parsedSecret.Type ?? "null");
                 return Task.FromResult(new SecretValidationResult { Success = false });
             }
 
             // Parse user-provided secret
-            var parsedSecretInput = Encoding.UTF8.GetBytes(parsedSecret.Credential as string);
+            var parsedSecretInput = Convert.FromBase64String(parsedSecret.Credential as string);
 
-            if (parsedSecretInput.Length != 68) // 32 bits + 256 bits + 256 bits
+            if (parsedSecretInput.Length != 70) // 40 bits + 256 bits + 256 bits
             {
-                _logger.LogDebug("Incorrect length for provided secret (expected 68 bytes, got {length})", parsedSecretInput.Length);
+                _logger.LogDebug("Incorrect length for provided secret (expected 70 bytes, got {length})", parsedSecretInput.Length);
                 return Task.FromResult(new SecretValidationResult { Success = false });
             }
 
             // Digest incoming bytes
-            byte[] secretId = new byte[4];
-            byte[] providedSecretBytes = new byte[32];
-            byte[] providedTag = new byte[32];
-
-            Array.Copy(parsedSecretInput, 0, secretId, 0, 4);
-            Array.Copy(parsedSecretInput, 4, providedSecretBytes, 0, 32);
-            Array.Copy(parsedSecretInput, 35, providedTag, 0, 32);
+            var secretId = new byte[6];
+            var providedSecretBytes = new byte[32];
+            var providedTag = new byte[32];
+            Array.Copy(parsedSecretInput, 0, secretId, 0, 6);
+            Array.Copy(parsedSecretInput, 6, providedSecretBytes, 0, 32);
+            Array.Copy(parsedSecretInput, 38, providedTag, 0, 32);
 
             // Calculate expected tag value
-            HMACBlake2B hMACBlake2B = new HMACBlake2B(_options.ClientSecretHmacKey, 32);
-            byte[] messageToDigest = new byte[36];
-            Array.Copy(secretId, 0, messageToDigest, 0, 4);
-            Array.Copy(providedSecretBytes, 0, messageToDigest, 4, 32);
-            byte[] calculatedTag = hMACBlake2B.ComputeHash(messageToDigest);
+            var messageToDigest = new byte[38];
+            Array.Copy(secretId, 0, messageToDigest, 0, 6);
+            Array.Copy(providedSecretBytes, 0, messageToDigest, 6, 32);
+            var blake2bMac = new Blake2bMac(32, 32);
+            var nsecMacKey = Key.Import(blake2bMac, _options.ClientSecretHmacKey, KeyBlobFormat.RawSymmetricKey);
+            var calculatedTag = blake2bMac.Mac(nsecMacKey, messageToDigest);
 
             if (!ByteArraysEqual(providedTag, calculatedTag))
             {
@@ -67,23 +67,26 @@ namespace NZFurs.Auth.Services
             }
 
             // Get expected secret
-            var secretIdString = Convert.ToBase64String(secretId);
-            var storedSecret = secrets.FirstOrDefault(s => s.Value.Split(':')[0] == secretIdString);
-            var storedSaltBytes = Convert.FromBase64String(storedSecret.Value.Split(':')[1]);
-            var storedHashBytes = Convert.FromBase64String(storedSecret.Value.Split(':')[2]);
+            var storedSecret = secrets.FirstOrDefault(s => Convert.FromBase64String(s.Value).Take(6).SequenceEqual(secretId));
+            var storedSecretBytes = Convert.FromBase64String(storedSecret.Value);
+            var storedSaltBytes = new byte[32];
+            var storedHashBytes = new byte[32];
+            Array.Copy(storedSecretBytes, 6, storedSaltBytes, 0, 32);
+            Array.Copy(storedSecretBytes, 38, storedHashBytes, 0, 32);
 
-            var blake2b = new NSec.Cryptography.Blake2b(256);
-            byte[] hashMessage = new byte[68];
-            Array.Copy(secretId, 0, messageToDigest, 0, 4);
-            Array.Copy(storedSaltBytes, 0, messageToDigest, 4, 32);
-            Array.Copy(providedSecretBytes, 0, messageToDigest, 4, 32);
+            var blake2b = new Blake2b(32);
+            var hashMessage = new byte[70];
+            Array.Copy(secretId, 0, hashMessage, 0, 6);
+            Array.Copy(storedSaltBytes, 0, hashMessage, 6, 32);
+            Array.Copy(providedSecretBytes, 0, hashMessage, 38, 32);
             var computedHashBytes = blake2b.Hash(hashMessage);
 
-            if (ByteArraysEqual(computedHashBytes, storedHashBytes))
+            if (!ByteArraysEqual(computedHashBytes, storedHashBytes))
             {
-                return Task.FromResult(new SecretValidationResult { Success = true });
+                _logger.LogDebug("Incorrect HMAC value for supplied secret");
+                return Task.FromResult(new SecretValidationResult { Success = false });
             }
-            return Task.FromResult(new SecretValidationResult { Success = false });
+            return Task.FromResult(new SecretValidationResult { Success = true });
         }
 
         // Compares two byte arrays for equality. The method is specifically written so that the loop is not optimized.

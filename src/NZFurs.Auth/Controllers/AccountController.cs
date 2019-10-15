@@ -58,6 +58,26 @@ namespace NZFurs.Auth.Controllers
             _sharedLocalizer = factory.Create("SharedResource", assemblyName.Name);
         }
 
+        public async Task<IActionResult> Auth(string returnUrl = null)
+        {
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            if (context?.IdP != null)
+            {
+                // if IdP is passed, then bypass showing the login screen
+                return ExternalLogin(context.IdP, returnUrl);
+            }
+
+            var vm = await BuildAuthViewModelAsync(returnUrl, context);
+
+            if (vm.EnableLocalLogin == false && vm.ExternalProviders.Count() == 1)
+            {
+                // only one option for logging in
+                return ExternalLogin(vm.ExternalProviders.First().AuthenticationScheme, returnUrl);
+            }
+
+            return View(vm);
+        }
+
         //
         // GET: /Account/Login
         [HttpGet]
@@ -120,6 +140,41 @@ namespace NZFurs.Auth.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(await BuildLoginViewModelAsync(model));
+        }
+
+        async Task<LoginViewModel> BuildAuthViewModelAsync(string returnUrl, AuthorizationRequest context)
+        {
+            var loginProviders = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            var providers = loginProviders
+                .Where(x => x.DisplayName != null)
+                .Select(x => new ExternalProvider
+                {
+                    DisplayName = x.DisplayName,
+                    AuthenticationScheme = x.Name
+                });
+
+            var allowLocal = true;
+            if (context?.ClientId != null)
+            {
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
+                if (client != null)
+                {
+                    allowLocal = client.EnableLocalLogin;
+
+                    if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
+                    {
+                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme));
+                    }
+                }
+            }
+
+            return new LoginViewModel
+            {
+                EnableLocalLogin = allowLocal,
+                ReturnUrl = returnUrl,
+                Email = context?.LoginHint,
+                ExternalProviders = providers.ToArray()
+            };
         }
 
         async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl, AuthorizationRequest context)

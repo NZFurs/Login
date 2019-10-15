@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using IdentityServer4.Services;
+using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -53,7 +54,7 @@ namespace NZFurs.Auth
             services.Configure<Argon2iPasswordHasherOptions>(Configuration.GetSection("Argon2i"));
             services.Configure<Argon2iSharedSecretValidatorOptions>(options =>
             {
-                options.ClientSecretHmacKey = Configuration.GetValue<byte[]>("Secrets:ClientSecretHmacKey");
+                options.ClientSecretHmacKey = Convert.FromBase64String(Configuration.GetValue<string>("Secrets:ClientSecretProtectionKey"));
             });
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
@@ -137,6 +138,7 @@ namespace NZFurs.Auth
             //services.AddTransient<IEmailSender, SendGridEmailSender>();
             services.AddTransient<IEmailSender, FakeEmailService>();
             services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
+            services.AddTransient<ISecretValidator, Argon2iSecretValidator>();
             services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
             services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();
 
