@@ -8,40 +8,42 @@
 <h2 class="text-2xl m-6 text-nz-green-light text-center">@ViewData["Title"].</h2>
 
 <div class="container mx-auto h-full flex justify-center items-center">
-    <section>
-        <div class="p-8 bg-nz-green-light mb-6 rounded-lg">
-            <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-                <hr />
-                <div asp-validation-summary="All" class="text-red"></div>
-                <div class="mb-4">
-                    <label asp-for="Email" class="font-bold text-green-darkest block mb-2">@SharedLocalizer.GetLocalizedHtmlString("EMAIL")</label>
-                    <div class="col-md-10">
-                        <input asp-for="Email" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded" />
-                        <span asp-validation-for="Email" class="text-red"></span>
+    <div class="w-4/5 sm:w-4/5 md:w-1/2">
+        <section>
+            <div class="p-8 bg-nz-green-light mb-6 rounded-lg">
+                <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                    <hr />
+                    <div asp-validation-summary="All" class="text-red"></div>
+                    <div class="mb-4">
+                        <label asp-for="Email" class="font-bold text-green-darkest block mb-2">@SharedLocalizer.GetLocalizedHtmlString("EMAIL")</label>
+                        <div class="col-md-10">
+                            <input asp-for="Email" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded" />
+                            <span asp-validation-for="Email" class="text-red"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="mb-4">
-                    <label asp-for="Password" class="font-bold text-green-darkest block mb-2">@SharedLocalizer.GetLocalizedHtmlString("PASSWORD")</label>
-                    <div class="col-md-10">
-                        <input asp-for="Password" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded" />
-                        <span asp-validation-for="Password" class="text-red"></span>
+                    <div class="mb-4">
+                        <label asp-for="Password" class="font-bold text-green-darkest block mb-2">@SharedLocalizer.GetLocalizedHtmlString("PASSWORD")</label>
+                        <div class="col-md-10">
+                            <input asp-for="Password" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded" />
+                            <span asp-validation-for="Password" class="text-red"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="mb-4">
-                    <label asp-for="ConfirmPassword" class="font-bold text-green-darkest block mb-2">@SharedLocalizer.GetLocalizedHtmlString("CONFIRM_PASSWORD")</label>
-                    <div class="col-md-10">
-                        <input asp-for="ConfirmPassword" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded" />
-                        <span asp-validation-for="ConfirmPassword" class="text-red"></span>
+                    <div class="mb-4">
+                        <label asp-for="ConfirmPassword" class="font-bold text-green-darkest block mb-2">@SharedLocalizer.GetLocalizedHtmlString("CONFIRM_PASSWORD")</label>
+                        <div class="col-md-10">
+                            <input asp-for="ConfirmPassword" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded" />
+                            <span asp-validation-for="ConfirmPassword" class="text-red"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="mb-4">
-                    <div class="col-md-offset-2 col-md-10">
-                        <button type="submit" class="w-full mt-8 bg-yellow hover:bg-yellow-darker text-green-darkest hover:text-white font-bold py-2 px-4 rounded">@SharedLocalizer.GetLocalizedHtmlString("REGISTER")</button>
+                    <div class="mb-4">
+                        <div class="col-md-offset-2 col-md-10">
+                            <button type="submit" class="w-full mt-8 bg-yellow hover:bg-yellow-darker text-green-darkest hover:text-white font-bold py-2 px-4 rounded">@SharedLocalizer.GetLocalizedHtmlString("REGISTER")</button>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
-    </section>
+                </form>
+            </div>
+        </section>
+    </div>
 </div>
 
 @section Scripts {
