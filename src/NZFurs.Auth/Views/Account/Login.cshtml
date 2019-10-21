@@ -12,6 +12,12 @@
     <div class="w-4/5 sm:w-4/5 md:w-1/2">
         <section>
             <div class="p-8 bg-nz-green-light mb-6 rounded-lg">
+                <div class="mb-4">
+                    <div class="flex items-center justify-between">
+                        <a class="text-center w-full bg-yellow hover:bg-yellow-darker text-green-darkest hover:text-white font-bold py-2 px-4 rounded no-underline" asp-action="Register">@SharedLocalizer.GetLocalizedHtmlString("CREATE_A_NEW_ACCOUNT")</a>
+                    </div>
+                </div>
+                <p class="font-bold text-center">— or —</p>
                 <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@Model.ReturnUrl" method="post"  >
                     <div asp-validation-summary="All" class="list-reset" ></div>
                     <div class="mb-4">
