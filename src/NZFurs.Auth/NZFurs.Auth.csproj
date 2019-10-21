@@ -13,7 +13,7 @@
       <Publish Condition="'%(PackageReference.Version)' == ''">true</Publish>
     </PackageReference>
     <PackageReference Include="BuildBundlerMinifier" Version="2.9.406" />
-    <PackageReference Include="IdentityServer4" Version="2.5.2" />
+    <PackageReference Include="IdentityServer4" Version="3.0.1" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.5.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.6">
       <PrivateAssets>all</PrivateAssets>
