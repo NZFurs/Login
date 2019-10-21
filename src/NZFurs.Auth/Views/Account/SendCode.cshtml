@@ -5,7 +5,7 @@
     ViewData["Title"] = "Send Verification Code";@SharedLocalizer.GetLocalizedHtmlString("SEND_VERIFICATION_CODE");
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="text-2xl m-6 text-nz-green-light text-center">@ViewData["Title"]</h2>
 
 <form asp-controller="Account" asp-action="SendCode" asp-route-returnurl="@Model.ReturnUrl" method="post" class="form-horizontal">
     <input asp-for="RememberMe" type="hidden" />

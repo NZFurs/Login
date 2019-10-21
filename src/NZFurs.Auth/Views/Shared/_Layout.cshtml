@@ -17,7 +17,7 @@
             <div class="flex items-center flex-no-shrink text-green-darkest hover:text-nz-green-light mr-6">
                 <svg class="fill-current h-8 w-8 mr-2" width="54" height="54" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 22.1c1.8-7.2 6.3-10.8 13.5-10.8 10.8 0 12.15 8.1 17.55 9.45 3.6.9 6.75-.45 9.45-4.05-1.8 7.2-6.3 10.8-13.5 10.8-10.8 0-12.15-8.1-17.55-9.45-3.6-.9-6.75.45-9.45 4.05zM0 38.3c1.8-7.2 6.3-10.8 13.5-10.8 10.8 0 12.15 8.1 17.55 9.45 3.6.9 6.75-.45 9.45-4.05-1.8 7.2-6.3 10.8-13.5 10.8-10.8 0-12.15-8.1-17.55-9.45-3.6-.9-6.75.45-9.45 4.05z"/></svg>
                 <a asp-controller="Home" asp-action="Index" class="no-underline block mt-4 lg:inline-block lg:mt-0 text-xl text-green-darkest hover:text-green-darkest mr-4">
-                    <em>login.furry.nz</em>
+                    <em>NZFurs</em>
                 </a>
             </div>
             <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
@@ -30,18 +30,12 @@
 
     </div>
 
-    <div >
+    <div class="text-white">
         @RenderBody()
-       
     </div>
 
     <footer>
-        <hr />
-        <nav class="flex items-center justify-between flex-wrap bg-white p-6">
-            <p>&copy; 2018 - login.furry.nz</p>
-
-            @await Html.PartialAsync("_SelectLanguagePartial")
-        </nav>
+    
     </footer>
 
     <script src="~/js/vendor.min.js" asp-append-version="true"></script>
