@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NZFurs.Auth", "src\NZFurs.Auth\NZFurs.Auth.csproj", "{25920D7F-C468-47EC-8B3E-53CCB20C59A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NZFurs.Auth.ClientSecretGenerator", "src\NZFurs.Auth.ClientSecretGenerator\NZFurs.Auth.ClientSecretGenerator.csproj", "{9F3B157C-CEB5-4D7A-BAE8-1C5E5883D191}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +31,17 @@ Global
 		{25920D7F-C468-47EC-8B3E-53CCB20C59A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25920D7F-C468-47EC-8B3E-53CCB20C59A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25920D7F-C468-47EC-8B3E-53CCB20C59A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F3B157C-CEB5-4D7A-BAE8-1C5E5883D191}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F3B157C-CEB5-4D7A-BAE8-1C5E5883D191}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F3B157C-CEB5-4D7A-BAE8-1C5E5883D191}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F3B157C-CEB5-4D7A-BAE8-1C5E5883D191}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{25920D7F-C468-47EC-8B3E-53CCB20C59A3} = {2408EC7B-2E06-46A5-B6AC-D4E985E30CBB}
+		{9F3B157C-CEB5-4D7A-BAE8-1C5E5883D191} = {2408EC7B-2E06-46A5-B6AC-D4E985E30CBB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DA180829-4EA8-4C3B-BCF1-0379C9588BE6}
