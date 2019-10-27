@@ -48,7 +48,7 @@ jobs:
         if [ "$(docker ps -q -f name=login-production)" ]; then
           docker rm -f login-production
         fi
-        docker run -d -p "80:80" -p "443:443" --env-file /opt/login/production.env --volume=/var/log/login:/mnt/login-production-logs --name login-production nzfurs/login
+        docker run -d -p "80:80" -p "443:443" --env-file /opt/login/production.env --volume=/var/log/login:/mnt/login-production-logs --name login-production nzfurs/login:stable
       failOnStdErr: false
 
 
