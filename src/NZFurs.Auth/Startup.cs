@@ -113,7 +113,8 @@ namespace NZFurs.Auth
                 {
                     options.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
                     options.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
-                });
+                })
+                .AddSteam();
             #endregion
 
             #region Identity
