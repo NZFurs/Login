@@ -28,6 +28,7 @@ using NZFurs.Auth.Models;
 using NZFurs.Auth.Options;
 using NZFurs.Auth.Resources;
 using NZFurs.Auth.Services;
+using reCAPTCHA.AspNetCore;
 
 namespace NZFurs.Auth
 {
@@ -58,6 +59,7 @@ namespace NZFurs.Auth
             });
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:KeyVault"));
             services.Configure<AzureKeyVaultKeyServiceOptions>(Configuration.GetSection("Azure:ActiveDirectory"));
+            services.Configure<RecaptchaSettings>(Configuration.GetSection("Recaptcha"));
             services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
             #endregion
 
@@ -138,6 +140,7 @@ namespace NZFurs.Auth
             //services.AddTransient<IEmailSender, SendGridEmailSender>();
             services.AddTransient<IEmailSender, FakeEmailService>();
             services.AddTransient<IPasswordHasher<ApplicationUser>, Argon2iPasswordHasher<ApplicationUser>>();
+            services.AddTransient<IRecaptchaService, RecaptchaService>();
             services.AddTransient<ISecretValidator, Argon2iSecretValidator>();
             services.AddScoped<IKeyMaterialService, AzureKeyVaultKeyService>();
             services.AddScoped<ITokenCreationService, AzureKeyVaultKeyService>();
@@ -228,6 +231,7 @@ namespace NZFurs.Auth
                 .ImageSources(imageSrc => imageSrc.CustomSources("data:"))
                 .ScriptSources(s => s.Self())
                 .ScriptSources(s => s.UnsafeInline()) // TODO: HELL NO
+                .ScriptSources(s => s.CustomSources("https://www.google.com", "https://www.gstatic.com"))
             );
 
             var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();

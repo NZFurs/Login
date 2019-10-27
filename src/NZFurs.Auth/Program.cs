@@ -84,15 +84,12 @@ namespace NZFurs.Auth
                     config.AddEnvironmentVariables(prefix: "NZFURS:AUTH:");
                     config.AddCommandLine(args);
 
-                    if (!hostingContext.HostingEnvironment.IsDevelopment())
-                    {
-                        var preVaultConfig = config.Build();
-                        config.AddAzureKeyVault(
-                            $"https://{preVaultConfig["Azure:KeyVault:KeyVault"]}.vault.azure.net/",
-                            GetKeyVaultClient(preVaultConfig.GetConnectionString("AzureServiceTokenProvider")),
-                            new DefaultKeyVaultSecretManager()
-                        );
-                    }
+                    var preVaultConfig = config.Build();
+                    config.AddAzureKeyVault(
+                        $"https://{preVaultConfig["Azure:KeyVault:KeyVault"]}.vault.azure.net/",
+                        GetKeyVaultClient(preVaultConfig.GetConnectionString("AzureServiceTokenProvider")),
+                        new DefaultKeyVaultSecretManager()
+                    );
 
                     config.Validate(File.ReadAllText("configurationschema.json"), throwOnError: true);
                 })

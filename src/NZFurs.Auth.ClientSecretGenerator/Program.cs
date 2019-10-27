@@ -16,11 +16,13 @@ namespace NZFurs.Auth.ClientSecretGenerator
             var salt = new byte[32];
             var hmacKeyBytes = Convert.FromBase64String(args[0]);
 
-            var csprng = RandomNumberGenerator.Create();
-            csprng.GetBytes(secretId);
-            csprng.GetBytes(secretBytes);
-            csprng.GetBytes(salt);
-
+            using (var csprng = RandomNumberGenerator.Create())
+            {
+                csprng.GetBytes(secretId);
+                csprng.GetBytes(secretBytes);
+                csprng.GetBytes(salt);
+            }
+            
             // Calculate tag value
             byte[] messageToDigest = new byte[38];
             Array.Copy(secretId, 0, messageToDigest, 0, 6);

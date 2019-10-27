@@ -20,6 +20,7 @@ using NZFurs.Auth.Models;
 using NZFurs.Auth.Models.AccountViewModels;
 using NZFurs.Auth.Resources;
 using NZFurs.Auth.Services;
+using reCAPTCHA.AspNetCore;
 
 namespace NZFurs.Auth.Controllers
 {
@@ -34,6 +35,7 @@ namespace NZFurs.Auth.Controllers
         private readonly IClientStore _clientStore;
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IStringLocalizer _sharedLocalizer;
+        private readonly IRecaptchaService _recaptchaService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -43,7 +45,8 @@ namespace NZFurs.Auth.Controllers
             ILoggerFactory loggerFactory,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
-            IStringLocalizerFactory factory)
+            IStringLocalizerFactory factory,
+            IRecaptchaService recaptchaService)
         {
             _userManager = userManager;
             _persistedGrantService = persistedGrantService;
@@ -52,6 +55,7 @@ namespace NZFurs.Auth.Controllers
             _logger = loggerFactory.CreateLogger<AccountController>();
             _interaction = interaction;
             _clientStore = clientStore;
+            _recaptchaService = recaptchaService;
 
             var type = typeof(SharedResource);
             var assemblyName = new AssemblyName(type.GetTypeInfo().Assembly.FullName);
@@ -325,6 +329,10 @@ namespace NZFurs.Auth.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
+            var recaptchaResponse = await _recaptchaService.Validate(Request);
+            if (!recaptchaResponse.success)
+                ModelState.AddModelError("", "There was an error validating recCaptcha. Please try again!"); // TODO: Localisation
+
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
@@ -336,12 +344,12 @@ namespace NZFurs.Auth.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    //await _signInManager.SignInAsync(user, isPersistent: false);
-                    //_logger.LogInformation(3, "User created a new account with password.");
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    await _emailSender.SendEmailAsync(model.Email, "NZFurs Account: Please confirm your email address",
+                        $"Please confirm your NZFurs account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    _logger.LogInformation(3, "User created a new account with password.");
                     return RedirectToLocal(returnUrl);
                 }
                 AddErrors(result);
@@ -494,7 +502,7 @@ namespace NZFurs.Auth.Controllers
                    model.Email, 
                    "Reset Password",
                    $"Please reset your password by clicking here: {callbackUrl}", 
-                   "Hi Sir");
+                   "Hi");
 
                 return View("ForgotPasswordConfirmation");
             }

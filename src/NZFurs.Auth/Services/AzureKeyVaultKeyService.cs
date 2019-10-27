@@ -180,7 +180,10 @@ namespace NZFurs.Auth.Services
                 case JsonWebAlgorithmsKeyTypes.RSA:
                 case "RSA-HSM":
                     var rsa = keyBundle.Key.ToRSA(false);
-                    return new RsaSecurityKey(rsa);
+                    return new RsaSecurityKey(rsa)
+                    {
+                        KeyId = keyBundle.Key.Kid
+                    };
                 case JsonWebAlgorithmsKeyTypes.EllipticCurve:
                 case "EC-HSM":
                     var ecParameters = new System.Security.Cryptography.ECParameters
@@ -195,7 +198,10 @@ namespace NZFurs.Auth.Services
                     var ecdsa = ECDsa.Create(ecParameters);
 
                     //var ecdsa = keyBundle.Key.ToECDsa(false);
-                    return new ECDsaSecurityKey(ecdsa);
+                    return new ECDsaSecurityKey(ecdsa)
+                    {
+                        KeyId = keyBundle.Key.Kid
+                    };
                 default:
                     throw new Exception("Key Vault key is an unsupported kty type.");
             }
