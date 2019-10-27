@@ -1,9 +1,54 @@
-pool:
-  vmImage: 'Ubuntu 16.04'
+trigger:
+- develop
+- master
 
-variables:
-  imageName: 'nzfurs/login:$(build.buildId)'
+jobs:
 
-steps:
-- script: docker build -f Dockerfile -t $(imageName) .
-  displayName: 'docker build'
+- job: build
+  displayName: Build Docker Image
+  pool:
+    vmImage: 'Ubuntu-16.04'
+
+  variables:
+    dockerId: nzfurs
+    imageName: 'login'
+    isPullRequest: eq(variables['Build.Reason'], 'PullRequest')
+
+  steps:
+  - script: |
+      docker build -f Dockerfile -t $(dockerId)/$(imageName):$(build.buildId) -t $(dockerId)/$(imageName):latest .
+    displayName: Build Docker Container
+  - script: |
+      docker tag $(dockerId)/$(imageName):$(build.buildId) $(dockerId)/$(imageName):stable
+    condition: in(variables['Build.SourceBranch'], 'refs/heads/master')
+    displayName: Tag master image with :stable
+  - script: |
+      docker login -u $(dockerHubId) -p $(dockerHubPassword)
+      docker push $(dockerId)/$(imageName)
+    condition: not(${{ variables.isPullRequest }})
+    displayName: Publish to Docker Hub
+
+- job: deploy
+  displayName: Deploy Stable Release
+  dependsOn:
+  - build
+  variables:
+    dockerId: nzfurs
+    imageName: 'login'
+    isPullRequest: eq(variables['Build.Reason'], 'PullRequest')
+  condition: and(not(${{ variables.isPullRequest }}), in(variables['Build.SourceBranch'], 'refs/heads/master'))
+  steps:
+  - checkout: none #skip checking out the default repository resource
+  - task: SSH@0
+    inputs:
+      sshEndpoint: login-production
+      runOptions: inline
+      inline: |
+        docker pull nzfurs/login:stable
+        if [ "$(docker ps -q -f name=login-production)" ]; then
+          docker rm -f login-production
+        fi
+        docker run -d -p "80:80" -p "443:443" --env-file /opt/login/production.env --volume=/var/log/login:/mnt/login-production-logs --name login-production nzfurs/login
+      failOnStdErr: false
+
+
