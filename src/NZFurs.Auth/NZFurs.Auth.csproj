@@ -34,6 +34,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
     <PackageReference Include="NSec.Cryptography" Version="19.5.0" />
     <PackageReference Include="reCAPTCHA.AspNetCore" Version="2.2.3" />
+    <PackageReference Include="AspNet.Security.OAuth.Discord" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
