@@ -1,9 +1,54 @@
-pool:
-  vmImage: 'Ubuntu 16.04'
+trigger:
+- develop
+- release
 
-variables:
-  imageName: 'nzfurs/login:$(build.buildId)'
+jobs:
 
-steps:
-- script: docker build -f Dockerfile -t $(imageName) .
-  displayName: 'docker build'
+- job: build
+  displayName: Build Docker Image
+  pool:
+    vmImage: 'Ubuntu-16.04'
+
+  variables:
+    dockerId: nzfurs
+    imageName: 'login'
+    isPullRequest: eq(variables['Build.Reason'], 'PullRequest')
+
+  steps:
+  - script: |
+      docker build -f Dockerfile -t $(dockerId)/$(imageName):$(build.buildId) -t $(dockerId)/$(imageName):latest .
+    displayName: Build Docker Container
+  - script: |
+      docker tag $(dockerId)/$(imageName):$(build.buildId) $(dockerId)/$(imageName):stable
+    condition: in(variables['Build.SourceBranch'], 'refs/heads/release')
+    displayName: Tag release image with :stable
+  - script: |
+      docker login -u $(dockerHubId) -p $(dockerHubPassword)
+      docker push $(dockerId)/$(imageName)
+    condition: not(${{ variables.isPullRequest }})
+    displayName: Publish to Docker Hub
+
+# - job: deploy
+#   displayName: Deploy Test Site
+#   dependsOn:
+#   - build
+#   variables:
+#     dockerId: nzfurs
+#     imageName: 'login'
+#     isPullRequest: eq(variables['Build.Reason'], 'PullRequest')
+#   condition: and(not(${{ variables.isPullRequest }}), not(in(variables['Build.SourceBranch'], 'refs/heads/release')))
+#   steps:
+#   - checkout: none #skip checking out the default repository resource
+#   - task: SSH@0
+#     inputs:
+#       sshEndpoint: furconz-testing
+#       runOptions: inline
+#       inline: docker pull nzfurs/login:latest
+#   - task: SSH@0
+#     inputs:
+#       sshEndpoint: furconz-testing
+#       runOptions: inline
+#       inline: docker-compose --project-directory /opt/furconz/ -f /opt/furconz/docker-compose.yml up -d web-test
+#       failOnStdErr: false
+
+
