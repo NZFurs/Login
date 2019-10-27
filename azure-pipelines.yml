@@ -1,6 +1,6 @@
 trigger:
 - develop
-- release
+- master
 
 jobs:
 
@@ -20,35 +20,41 @@ jobs:
     displayName: Build Docker Container
   - script: |
       docker tag $(dockerId)/$(imageName):$(build.buildId) $(dockerId)/$(imageName):stable
-    condition: in(variables['Build.SourceBranch'], 'refs/heads/release')
-    displayName: Tag release image with :stable
+    condition: in(variables['Build.SourceBranch'], 'refs/heads/master')
+    displayName: Tag master image with :stable
   - script: |
       docker login -u $(dockerHubId) -p $(dockerHubPassword)
       docker push $(dockerId)/$(imageName)
     condition: not(${{ variables.isPullRequest }})
     displayName: Publish to Docker Hub
 
-# - job: deploy
-#   displayName: Deploy Test Site
-#   dependsOn:
-#   - build
-#   variables:
-#     dockerId: nzfurs
-#     imageName: 'login'
-#     isPullRequest: eq(variables['Build.Reason'], 'PullRequest')
-#   condition: and(not(${{ variables.isPullRequest }}), not(in(variables['Build.SourceBranch'], 'refs/heads/release')))
-#   steps:
-#   - checkout: none #skip checking out the default repository resource
-#   - task: SSH@0
-#     inputs:
-#       sshEndpoint: furconz-testing
-#       runOptions: inline
-#       inline: docker pull nzfurs/login:latest
-#   - task: SSH@0
-#     inputs:
-#       sshEndpoint: furconz-testing
-#       runOptions: inline
-#       inline: docker-compose --project-directory /opt/furconz/ -f /opt/furconz/docker-compose.yml up -d web-test
-#       failOnStdErr: false
+- job: deploy
+  displayName: Deploy Stable Release
+  dependsOn:
+  - build
+  variables:
+    dockerId: nzfurs
+    imageName: 'login'
+    isPullRequest: eq(variables['Build.Reason'], 'PullRequest')
+  condition: and(not(${{ variables.isPullRequest }}), in(variables['Build.SourceBranch'], 'refs/heads/master'))
+  steps:
+  - checkout: none #skip checking out the default repository resource
+  - task: SSH@0
+    inputs:
+      sshEndpoint: login-production
+      runOptions: inline
+      inline: docker pull nzfurs/login:stable
+  - task: SSH@0
+    inputs:
+      sshEndpoint: login-production
+      runOptions: inline
+      inline: docker rm -f login-production
+      failOnStdErr: false
+  - task: SSH@0
+    inputs:
+      sshEndpoint: login-production
+      runOptions: inline
+      inline: docker run -d -p "80:80" -p "443:443" --env-file /opt/login/production.env --volume=/var/log/login:/mnt/login-production-logs --name login-production nzfurs/login
+      failOnStdErr: false
 
 
