@@ -99,6 +99,11 @@ namespace NZFurs.Auth
 
             #region Authentication
             services.AddAuthentication()
+                .AddDiscord(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Discord:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Discord:ClientSecret"];
+                })
                 .AddGoogle(options =>
                 {
                     options.ClientId = Configuration["Authentication:Google:ClientId"];
@@ -108,7 +113,8 @@ namespace NZFurs.Auth
                 {
                     options.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
                     options.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
-                });
+                })
+                .AddSteam();
             #endregion
 
             #region Identity
