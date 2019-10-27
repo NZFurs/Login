@@ -1,6 +1,12 @@
-﻿@inject LocService SharedLocalizer
+﻿@using Microsoft.Extensions.Options
+@using reCAPTCHA.AspNetCore
 @using NZFurs.Auth.Resources
+
+@inject LocService SharedLocalizer
+@inject IOptions<RecaptchaSettings> RecaptchaSettings
+
 @model NZFurs.Auth.Models.AccountViewModels.RegisterViewModel
+
 @{
     ViewData["Title"] = @SharedLocalizer.GetLocalizedHtmlString("REGISTER");
 }
@@ -34,6 +40,9 @@
                             <input asp-for="ConfirmPassword" class="block appearance-none w-full bg-white border border-grey-light hover:border-grey px-2 py-2 rounded" />
                             <span asp-validation-for="ConfirmPassword" class="text-red"></span>
                         </div>
+                    </div>
+                    <div class="mb-4">
+                        @Html.Recaptcha(RecaptchaSettings.Value)
                     </div>
                     <div class="mb-4">
                         <div class="col-md-offset-2 col-md-10">
