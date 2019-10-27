@@ -12,12 +12,12 @@ WORKDIR /app
 COPY *.sln .
 COPY src/NZFurs.Auth/*.csproj ./src/NZFurs.Auth/
 
-RUN dotnet restore
+RUN dotnet restore ./src/NZFurs.Auth/
 
 # copy everything else and publish
 COPY src/ ./src/
 
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out src/NZFurs.Auth/
 
 # "Runtime Stage" Container: "runtime"
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS runtime
