@@ -210,6 +210,11 @@ namespace NZFurs.Auth
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("en-NZ")
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
