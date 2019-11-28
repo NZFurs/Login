@@ -19,6 +19,10 @@ namespace NZFurs.Auth.Controllers
             return View();
         }
 
+        public IActionResult Privacy()
+        {
+            return View();
+        }
 
         /// <summary>
         /// Shows the error page

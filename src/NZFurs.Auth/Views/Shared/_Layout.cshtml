@@ -23,9 +23,11 @@
             <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
                 <div class="text-sm lg:flex-grow">
                     <a asp-controller="Home" asp-action="Index" class="no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-green-darkest border-transparent hover:text-green-darkest hover:bg-nz-green-light mt-4 lg:mt-0">@SharedLocalizer.GetLocalizedHtmlString("HOME")</a>
+                    <a asp-controller="Home" asp-action="Privacy" class="no-underline inline-block text-sm px-4 py-2 leading-none border rounded text-green-darkest border-transparent hover:text-green-darkest hover:bg-nz-green-light mt-4 lg:mt-0">Privacy</a>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
+
         </nav>
 
     </div>
